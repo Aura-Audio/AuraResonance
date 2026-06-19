@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resonance Lab</title>
+  <style>
+    /* Base Styles */
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #121212;
+      color: #e0e0e0;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: #1e1e1e;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+    h1, h2, h3 {
+      color: #03dac6;
+      margin-top: 0;
+    }
+    /* Sound Source Selector */
+    .sound-source, .resonance-method {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .sound-source button, .resonance-method button {
+      background: #333;
+      color: #fff;
+      border: 1px solid #444;
+      padding: 10px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .sound-source button.active, .resonance-method button.active {
+      background: #03dac6;
+      color: #000;
+      border-color: #03dac6;
+    }
+    /* Parameters */
+    .parameters {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .parameter {
+      background: #252525;
+      padding: 15px;
+      border-radius: 8px;
+    }
+    .parameter label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    .parameter input[type="range"] {
+      width: 100%;
+    }
+    .parameter .value {
+      text-align: center;
+      display: block;
+      margin-top: 5px;
+    }
+    /* Visualizers */
+    .visualizers {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    .visualizer {
+      flex: 1;
+      background: #000;
+      border-radius: 8px;
+      border: 1px solid #444;
+      position: relative;
+      height: 200px;
+    }
+    .visualizer canvas {
+      width: 100%;
+      height: 100%;
+    }
+    .visualizer-label {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      font-size: 12px;
+      color: #888;
+    }
+    /* Resonance Index */
+    .resonance-index {
+      background: #252525;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    .resonance-index .meter {
+      height: 20px;
+      background: #333;
+      border-radius: 10px;
+      margin: 10px 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .resonance-index .meter-fill {
+      height: 100%;
+      background: linear-gradient(to right, #f44336, #ff9800, #4caf50);
+      border-radius: 10px;
+      transition: width 0.2s;
+    }
+    .resonance-index .score {
+      font-size: 24px;
+      font-weight: bold;
+      text-align: center;
+    }
+    /* Presets */
+    .presets {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+    .presets button {
+      background: #333;
+      color: #fff;
+      border: 1px solid #444;
+      padding: 10px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    /* Responsive */
+    @media (max-width: 768px) {
+      .visualizers {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎛️ Resonance Lab</h1>
+    <p>Test resonance methods on different sound sources in real-time.</p>
+
+    <!-- Sound Source Selector -->
+    <h2>🔊 Sound Source</h2>
+    <div class="sound-source">
+      <button class="sound-btn active" data-source="mic">🎤 Live Mic</button>
+      <button class="sound-btn" data-source="white">White Noise</button>
+      <button class="sound-btn" data-source="pink">Pink Noise</button>
+      <button class="sound-btn" data-source="brown">Brown Noise</button>
+      <button class="sound-btn" data-source="tone">🎵 Tone (220Hz)</button>
+      <button class="sound-btn" data-source="water">💧 Water</button>
+      <button class="sound-btn" data-source="rain">🌧️ Rain</button>
+      <button class="sound-btn" data-source="fire">🔥 Fire</button>
+    </div>
+
+    <!-- Resonance Method Selector -->
+    <h2>✨ Resonance Method</h2>
+    <div class="resonance-method">
+      <button class="method-btn active" data-method="none">🔇 None</button>
+      <button class="method-btn" data-method="bandpass">Bandpass Filter</button>
+      <button class="method-btn" data-method="comb">Comb Filter</button>
+      <button class="method-btn" data-method="feedback">Sympathetic Feedback</button>
+      <button class="method-btn" data-method="convolution">Convolution Reverb</button>
+      <button class="method-btn" data-method="lfo">LFO-Modulated Filter</button>
+      <button class="method-btn" data-method="waveguide">Waveguide</button>
+    </div>
+
+    <!-- Parameters -->
+    <h2>⚙️ Parameters</h2>
+    <div class="parameters">
+      <div class="parameter">
+        <label for="q-slider">Q Factor</label>
+        <input type="range" id="q-slider" min="1" max="100" value="10" class="slider">
+        <span class="value" id="q-value">10</span>
+      </div>
+      <div class="parameter">
+        <label for="freq-slider">Frequency (Hz)</label>
+        <input type="range" id="freq-slider" min="20" max="20000" value="440" class="slider">
+        <span class="value" id="freq-value">440</span>
+      </div>
+      <div class="parameter">
+        <label for="feedback-slider">Feedback (%)</label>
+        <input type="range" id="feedback-slider" min="0" max="100" value="50" class="slider">
+        <span class="value" id="feedback-value">50</span>
+      </div>
+      <div class="parameter">
+        <label for="delay-slider">Delay (ms)</label>
+        <input type="range" id="delay-slider" min="1" max="100" value="10" class="slider">
+        <span class="value" id="delay-value">10</span>
+      </div>
+      <div class="parameter">
+        <label for="wet-dry-slider">Wet/Dry Mix (%)</label>
+        <input type="range" id="wet-dry-slider" min="0" max="100" value="50" class="slider">
+        <span class="value" id="wet-dry-value">50</span>
+      </div>
+    </div>
+
+    <!-- Visualizers -->
+    <h2>📊 Visualizers</h2>
+    <div class="visualizers">
+      <div class="visualizer">
+        <div class="visualizer-label">FFT Spectrum</div>
+        <canvas id="fft-canvas"></canvas>
+      </div>
+      <div class="visualizer">
+        <div class="visualizer-label">Oscilloscope</div>
+        <canvas id="osc-canvas"></canvas>
+      </div>
+    </div>
+
+    <!-- Resonance Index -->
+    <h2>🎯 Resonance Index</h2>
+    <div class="resonance-index">
+      <div class="meter">
+        <div class="meter-fill" id="resonance-meter-fill" style="width: 0%;"></div>
+      </div>
+      <div class="score" id="resonance-score">0%</div>
+      <div class="details">
+        Energy Ratio: <span id="energy-ratio">0%</span> |
+        Spectral Flatness: <span id="spectral-flatness">0%</span> |
+        Q Contribution: <span id="q-contribution">0%</span>
+      </div>
+    </div>
+
+    <!-- Presets -->
+    <div class="presets">
+      <button id="save-preset">💾 Save Preset</button>
+      <button id="load-preset">📂 Load Preset</button>
+      <button id="reset">🔄 Reset</button>
+    </div>
+  </div>
+
+  <script>
+    // ===== GLOBAL VARIABLES =====
+    let audioCtx;
+    let masterGain;
+    let analyzer;
+    let soundSource;
+    let resonanceEffect;
+    let isPlaying = false;
+    let currentSource = 'mic';
+    let currentMethod = 'none';
+    let micStream;
+
+    // ===== INITIALIZATION =====
+    function init() {
+      // Create audio context
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+      // Master gain (to prevent clipping)
+      masterGain = audioCtx.createGain();
+      masterGain.gain.value = 0.7;
+      masterGain.connect(audioCtx.destination);
+
+      // Analyzer for visualizers and resonance index
+      analyzer = audioCtx.createAnalyser();
+      analyzer.fftSize = 2048;
+      masterGain.connect(analyzer);
+
+      // Setup visualizers
+      setupVisualizers();
+
+      // Setup event listeners
+      setupEventListeners();
+
+      // Start with default sound source
+      setSoundSource(currentSource);
+    }
+
+    // ===== SETUP EVENT LISTENERS =====
+    function setupEventListeners() {
+      // Sound source buttons
+      document.querySelectorAll('.sound-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.sound-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentSource = btn.dataset.source;
+          setSoundSource(currentSource);
+        });
+      });
+
+      // Resonance method buttons
+      document.querySelectorAll('.method-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.method-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentMethod = btn.dataset.method;
+          setResonanceMethod(currentMethod);
+        });
+      });
+
+      // Parameter sliders
+      document.querySelectorAll('.slider').forEach(slider => {
+        slider.addEventListener('input', () => {
+          const value = slider.value;
+          const id = slider.id.replace('-slider', '-value');
+          document.getElementById(id).textContent = value;
+          updateResonanceEffect();
+          updateResonanceIndex();
+        });
+      });
+
+      // Preset buttons
+      document.getElementById('save-preset').addEventListener('click', savePreset);
+      document.getElementById('load-preset').addEventListener('click', loadPreset);
+      document.getElementById('reset').addEventListener('click', reset);
+    }
+
+    // ===== SOUND SOURCES =====
+    function setSoundSource(source) {
+      // Disconnect previous sound source
+      if (soundSource) {
+        soundSource.disconnect();
+        if (currentSource === 'mic' && micStream) {
+          micStream.getTracks().forEach(track => track.stop());
+        }
+      }
+
+      // Create new sound source
+      switch (source) {
+        case 'mic':
+          if (!micStream) {
+            navigator.mediaDevices.getUserMedia({ audio: true })
+              .then(stream => {
+                micStream = stream;
+                soundSource = audioCtx.createMediaStreamSource(stream);
+                connectSoundSource();
+              })
+              .catch(err => {
+                console.error('Error accessing mic:', err);
+                alert('Could not access microphone. Please allow mic access.');
+              });
+          } else {
+            soundSource = audioCtx.createMediaStreamSource(micStream);
+            connectSoundSource();
+          }
+          break;
+        case 'white':
+          soundSource = createWhiteNoise();
+          connectSoundSource();
+          break;
+        case 'pink':
+          soundSource = createPinkNoise();
+          connectSoundSource();
+          break;
+        case 'brown':
+          soundSource = createBrownNoise();
+          connectSoundSource();
+          break;
+        case 'tone':
+          soundSource = createTone(220);
+          connectSoundSource();
+          break;
+        case 'water':
+          soundSource = createWaterSound();
+          connectSoundSource();
+          break;
+        case 'rain':
+          soundSource = createRainSound();
+          connectSoundSource();
+          break;
+        case 'fire':
+          soundSource = createFireSound();
+          connectSoundSource();
+          break;
+      }
+    }
+
+    function connectSoundSource() {
+      if (soundSource && masterGain) {
+        soundSource.connect(masterGain);
+        if (resonanceEffect) {
+          soundSource.connect(resonanceEffect);
+          resonanceEffect.connect(masterGain);
+        }
+      }
+    }
+
+    // Sound source generators
+    function createWhiteNoise() {
+      const bufferSize = audioCtx.sampleRate * 2;
+      const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const output = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        output[i] = Math.random() * 2 - 1;
+      }
+      const node = audioCtx.createBufferSource();
+      node.buffer = noiseBuffer;
+      node.loop = true;
+      node.start();
+      return node;
+    }
+
+    function createPinkNoise() {
+      const node = audioCtx.createScriptProcessor(4096, 1, 1);
+      let b0, b1, b2, b3, b4, b5, b6 = 0;
+      node.onaudioprocess = function(e) {
+        const output = e.outputBuffer.getChannelData(0);
+        for (let i = 0; i < output.length; i++) {
+          const white = Math.random() * 2 - 1;
+          b0 = 0.99886 * b0 + white * 0.0555179;
+          b1 = 0.99332 * b1 + white * 0.0750759;
+          b2 = 0.96900 * b2 + white * 0.1538520;
+          b3 = 0.86650 * b3 + white * 0.3104856;
+          b4 = 0.55000 * b4 + white * 0.5329522;
+          b5 = -0.7616 * b5 - white * 0.0168980;
+          b6 = white * 0.0330707;
+          output[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362;
+        }
+      };
+      return node;
+    }
+
+    function createBrownNoise() {
+      const node = audioCtx.createScriptProcessor(4096, 1, 1);
+      let lastOut = 0;
+      node.onaudioprocess = function(e) {
+        const output = e.outputBuffer.getChannelData(0);
+        for (let i = 0; i < output.length; i++) {
+          const white = Math.random() * 2 - 1;
+          output[i] = (lastOut + (0.02 * white)) / 1.02;
+          lastOut = output[i];
+        }
+      };
+      return node;
+    }
+
+    function createTone(freq) {
+      const osc = audioCtx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      osc.start();
+      return osc;
+    }
+
+    function createWaterSound() {
+      const bufferSize = audioCtx.sampleRate * 2;
+      const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const output = noiseBuffer.getChannelData(0);
+      let lastOut = 0;
+      for (let i = 0; i < bufferSize; i++) {
+        const white = Math.random() * 2 - 1;
+        output[i] = (lastOut + (0.02 * white)) / 1.02;
+        lastOut = output[i];
+        output[i] *= 3.5; // Boost volume
+      }
+      const noiseNode = audioCtx.createBufferSource();
+      noiseNode.buffer = noiseBuffer;
+      noiseNode.loop = true;
+
+      const lowpass = audioCtx.createBiquadFilter();
+      lowpass.type = 'lowpass';
+      lowpass.frequency.value = 600;
+
+      noiseNode.connect(lowpass);
+      noiseNode.start();
+
+      // Add bubbles
+      setInterval(() => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(lowpass);
+
+        const now = audioCtx.currentTime;
+        const baseFreq = 300 + Math.random() * 500;
+        const duration = 0.05 + Math.random() * 0.08;
+
+        osc.frequency.setValueAtTime(baseFreq, now);
+        osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.5, now + duration);
+
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(0.3 + Math.random() * 0.4, now + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+        osc.start(now);
+        osc.stop(now + duration);
+      }, 100 + Math.random() * 200);
+
+      return lowpass;
+    }
+
+    function createRainSound() {
+      const bufferSize = audioCtx.sampleRate * 2;
+      const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const output = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        output[i] = Math.random() * 2 - 1;
+      }
+      const noiseNode = audioCtx.createBufferSource();
+      noiseNode.buffer = noiseBuffer;
+      noiseNode.loop = true;
+
+      const highpass = audioCtx.createBiquadFilter();
+      highpass.type = 'highpass';
+      highpass.frequency.value = 2000;
+
+      noiseNode.connect(highpass);
+      noiseNode.start();
+
+      // Add raindrops
+      setInterval(() => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(highpass);
+
+        const now = audioCtx.currentTime;
+        const baseFreq = 800 + Math.random() * 1000;
+        const duration = 0.01 + Math.random() * 0.03;
+
+        osc.frequency.setValueAtTime(baseFreq, now);
+        osc.frequency.exponentialRampToValueAtTime(baseFreq * 0.5, now + duration);
+
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(0.5 + Math.random() * 0.5, now + 0.005);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+        osc.start(now);
+        osc.stop(now + duration);
+      }, 50 + Math.random() * 150);
+
+      return highpass;
+    }
+
+    function createFireSound() {
+      const bufferSize = audioCtx.sampleRate * 2;
+      const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const output = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        output[i] = Math.random() * 2 - 1;
+      }
+      const noiseNode = audioCtx.createBufferSource();
+      noiseNode.buffer = noiseBuffer;
+      noiseNode.loop = true;
+
+      const bandpass = audioCtx.createBiquadFilter();
+      bandpass.type = 'bandpass';
+      bandpass.frequency.value = 200;
+      bandpass.Q.value = 2;
+
+      noiseNode.connect(bandpass);
+      noiseNode.start();
+
+      // Modulate frequency with LFO
+      const lfo = audioCtx.createOscillator();
+      lfo.frequency.value = 0.5 + Math.random() * 0.5;
+      lfo.start();
+      lfo.connect(bandpass.frequency);
+
+      return bandpass;
+    }
+
+    // ===== RESONANCE METHODS =====
+    function setResonanceMethod(method) {
+      // Disconnect previous resonance effect
+      if (resonanceEffect) {
+        resonanceEffect.disconnect();
+      }
+
+      // Create new resonance effect
+      switch (method) {
+        case 'none':
+          resonanceEffect = null;
+          if (soundSource) {
+            soundSource.disconnect();
+            soundSource.connect(masterGain);
+          }
+          break;
+        case 'bandpass':
+          resonanceEffect = createBandpassFilter();
+          break;
+        case 'comb':
+          resonanceEffect = createCombFilter();
+          break;
+        case 'feedback':
+          resonanceEffect = createFeedbackLoop();
+          break;
+        case 'convolution':
+          resonanceEffect = createConvolutionReverb();
+          break;
+        case 'lfo':
+          resonanceEffect = createLFOFilter();
+          break;
+        case 'waveguide':
+          resonanceEffect = createWaveguide();
+          break;
+      }
+
+      if (resonanceEffect && soundSource) {
+        soundSource.disconnect();
+        soundSource.connect(resonanceEffect);
+        resonanceEffect.connect(masterGain);
+      }
+    }
+
+    function updateResonanceEffect() {
+      if (!resonanceEffect) return;
+
+      const q = parseInt(document.getElementById('q-slider').value);
+      const freq = parseInt(document.getElementById('freq-slider').value);
+      const feedback = parseInt(document.getElementById('feedback-slider').value) / 100;
+      const delay = parseInt(document.getElementById('delay-slider').value) / 1000;
+      const wetDry = parseInt(document.getElementById('wet-dry-slider').value) / 100;
+
+      switch (currentMethod) {
+        case 'bandpass':
+          resonanceEffect.frequency.value = freq;
+          resonanceEffect.Q.value = q;
+          break;
+        case 'comb':
+          resonanceEffect.delayTime.value = delay;
+          resonanceEffect.feedback.gain.value = feedback;
+          break;
+        case 'feedback':
+          resonanceEffect.filter.Q.value = q;
+          resonanceEffect.filter.frequency.value = freq;
+          resonanceEffect.feedback.gain.value = feedback;
+          break;
+        case 'lfo':
+          resonanceEffect.filter.Q.value = q;
+          resonanceEffect.filter.frequency.value = freq;
+          resonanceEffect.lfo.frequency.value = 0.1 + (feedback * 2);
+          break;
+      }
+
+      // Update wet/dry mix for all methods
+      if (resonanceEffect.wetGain) {
+        resonanceEffect.wetGain.gain.value = wetDry;
+        resonanceEffect.dryGain.gain.value = 1 - wetDry;
+      }
+    }
+
+    function createBandpassFilter() {
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.value = parseInt(document.getElementById('freq-slider').value);
+      filter.Q.value = parseInt(document.getElementById('q-slider').value);
+
+      // Wet/dry mix
+      const dryGain = audioCtx.createGain();
+      const wetGain = audioCtx.createGain();
+      dryGain.gain.value = 1 - (parseInt(document.getElementById('wet-dry-slider').value) / 100);
+      wetGain.gain.value = parseInt(document.getElementById('wet-dry-slider').value) / 100;
+
+      const merger = audioCtx.createChannelMerger(2);
+      filter.wetGain = wetGain;
+      filter.dryGain = dryGain;
+
+      return {
+        input: filter,
+        output: merger,
+        filter: filter,
+        wetGain: wetGain,
+        dryGain: dryGain,
+        connect: function(source) {
+          source.connect(filter);
+          source.connect(dryGain);
+          filter.connect(wetGain);
+          dryGain.connect(merger, 0, 0);
+          wetGain.connect(merger, 0, 1);
+        },
+        disconnect: function() {
+          filter.disconnect();
+          dryGain.disconnect();
+          wetGain.disconnect();
+          merger.disconnect();
+        }
+      };
+    }
+
+    function createCombFilter() {
+      const delay = audioCtx.createDelay(1);
+      delay.delayTime.value = parseInt(document.getElementById('delay-slider').value) / 1000;
+
+      const feedback = audioCtx.createGain();
+      feedback.gain.value = parseInt(document.getElementById('feedback-slider').value) / 100;
+
+      const wetGain = audioCtx.createGain();
+      const dryGain = audioCtx.createGain();
+      wetGain.gain.value = parseInt(document.getElementById('wet-dry-slider').value) / 100;
+      dryGain.gain.value = 1 - wetGain.gain.value;
+
+      const merger = audioCtx.createChannelMerger(2);
+
+      delay.connect(feedback);
+      feedback.connect(delay);
+      delay.wetGain = wetGain;
+      delay.dryGain = dryGain;
+
+      return {
+        input: delay,
+        output: merger,
+        delay: delay,
+        feedback: feedback,
+        wetGain: wetGain,
+        dryGain: dryGain,
+        connect: function(source) {
+          source.connect(delay);
+          source.connect(dryGain);
+          delay.connect(wetGain);
+          dryGain.connect(merger, 0, 0);
+          wetGain.connect(merger, 0, 1);
+        },
+        disconnect: function() {
+          delay.disconnect();
+          feedback.disconnect();
+          dryGain.disconnect();
+          wetGain.disconnect();
+          merger.disconnect();
+        }
+      };
+    }
+
+    function createFeedbackLoop() {
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.value = parseInt(document.getElementById('freq-slider').value);
+      filter.Q.value = parseInt(document.getElementById('q-slider').value);
+
+      const feedback = audioCtx.createGain();
+      feedback.gain.value = parseInt(document.getElementById('feedback-slider').value) / 100;
+
+      const wetGain = audioCtx.createGain();
+      const dryGain = audioCtx.createGain();
+      wetGain.gain.value = parseInt(document.getElementById('wet-dry-slider').value) / 100;
+      dryGain.gain.value = 1 - wetGain.gain.value;
+
+      const merger = audioCtx.createChannelMerger(2);
+
+      filter.connect(feedback);
+      feedback.connect(filter);
+
+      return {
+        input: filter,
+        output: merger,
+        filter: filter,
+        feedback: feedback,
+        wetGain: wetGain,
+        dryGain: dryGain,
+        connect: function(source) {
+          source.connect(filter);
+          source.connect(dryGain);
+          filter.connect(wetGain);
+          dryGain.connect(merger, 0, 0);
+          wetGain.connect(merger, 0, 1);
+        },
+        disconnect: function() {
+          filter.disconnect();
+          feedback.disconnect();
+          dryGain.disconnect();
+          wetGain.disconnect();
+          merger.disconnect();
+        }
+      };
+    }
+
+    async function createConvolutionReverb() {
+      // Load a default impulse response (e.g., a small room)
+      // In a real app, you'd let users upload their own IRs
+      const response = await fetch('https://raw.githubusercontent.com/mohayonao/web-audio-api-examples/master/impulse-responses/room-wav-44100-mono-16bit.wav');
+      const arrayBuffer = await response.arrayBuffer();
+      const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+
+      const convolver = audioCtx.createConvolver();
+      convolver.buffer = audioBuffer;
+
+      const wetGain = audioCtx.createGain();
+      const dryGain = audioCtx.createGain();
+      wetGain.gain.value = parseInt(document.getElementById('wet-dry-slider').value) / 100;
+      dryGain.gain.value = 1 - wetGain.gain.value;
+
+      const merger = audioCtx.createChannelMerger(2);
+      convolver.wetGain = wetGain;
+      convolver.dryGain = dryGain;
+
+      return {
+        input: convolver,
+        output: merger,
+        convolver: convolver,
+        wetGain: wetGain,
+        dryGain: dryGain,
+        connect: function(source) {
+          source.connect(convolver);
+          source.connect(dryGain);
+          convolver.connect(wetGain);
+          dryGain.connect(merger, 0, 0);
+          wetGain.connect(merger, 0, 1);
+        },
+        disconnect: function() {
+          convolver.disconnect();
+          dryGain.disconnect();
+          wetGain.disconnect();
+          merger.disconnect();
+        }
+      };
+    }
+
+    function createLFOFilter() {
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.value = parseInt(document.getElementById('freq-slider').value);
+      filter.Q.value = parseInt(document.getElementById('q-slider').value);
+
+      const lfo = audioCtx.createOscillator();
+      lfo.type = 'sine';
+      lfo.frequency.value = 0.1 + (parseInt(document.getElementById('feedback-slider').value) / 100 * 2);
+      lfo.start();
+
+      const lfoGain = audioCtx.createGain();
+      lfoGain.gain.value = 100; // Depth of modulation
+
+      lfo.connect(lfoGain);
+      lfoGain.connect(filter.frequency);
+
+      const wetGain = audioCtx.createGain();
+      const dryGain = audioCtx.createGain();
+      wetGain.gain.value = parseInt(document.getElementById('wet-dry-slider').value) / 100;
+      dryGain.gain.value = 1 - wetGain.gain.value;
+
+      const merger = audioCtx.createChannelMerger(2);
+      filter.wetGain = wetGain;
+      filter.dryGain = dryGain;
+
+      return {
+        input: filter,
+        output: merger,
+        filter: filter,
+        lfo: lfo,
+        wetGain: wetGain,
+        dryGain: dryGain,
+        connect: function(source) {
+          source.connect(filter);
+          source.connect(dryGain);
+          filter.connect(wetGain);
+          dryGain.connect(merger, 0, 0);
+          wetGain.connect(merger, 0, 1);
+        },
+        disconnect: function() {
+          filter.disconnect();
+          lfo.disconnect();
+          lfoGain.disconnect();
+          dryGain.disconnect();
+          wetGain.disconnect();
+          merger.disconnect();
+        }
+      };
+    }
+
+    function createWaveguide() {
+      // Simplified waveguide (delay + filter)
+      const delay = audioCtx.createDelay(1);
+      delay.delayTime.value = 0.1;
+
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 1000;
+      filter.Q.value = parseInt(document.getElementById('q-slider').value);
+
+      const feedback = audioCtx.createGain();
+      feedback.gain.value = parseInt(document.getElementById('feedback-slider').value) / 100;
+
+      delay.connect(filter);
+      filter.connect(feedback);
+      feedback.connect(delay);
+
+      const wetGain = audioCtx.createGain();
+      const dryGain = audioCtx.createGain();
+      wetGain.gain.value = parseInt(document.getElementById('wet-dry-slider').value) / 100;
+      dryGain.gain.value = 1 - wetGain.gain.value;
+
+      const merger = audioCtx.createChannelMerger(2);
+
+      return {
+        input: delay,
+        output: merger,
+        delay: delay,
+        filter: filter,
+        feedback: feedback,
+        wetGain: wetGain,
+        dryGain: dryGain,
+        connect: function(source) {
+          source.connect(delay);
+          source.connect(dryGain);
+          delay.connect(wetGain);
+          dryGain.connect(merger, 0, 0);
+          wetGain.connect(merger, 0, 1);
+        },
+        disconnect: function() {
+          delay.disconnect();
+          filter.disconnect();
+          feedback.disconnect();
+          dryGain.disconnect();
+          wetGain.disconnect();
+          merger.disconnect();
+        }
+      };
+    }
+
+    // ===== VISUALIZERS =====
+    function setupVisualizers() {
+      const fftCanvas = document.getElementById('fft-canvas');
+      const fftCtx = fftCanvas.getContext('2d');
+      const oscCanvas = document.getElementById('osc-canvas');
+      const oscCtx = oscCanvas.getContext('2d');
+
+      function draw() {
+        requestAnimationFrame(draw);
+
+        // FFT Spectrum
+        const fftData = new Uint8Array(analyzer.frequencyBinCount);
+        analyzer.getByteFrequencyData(fftData);
+
+        fftCtx.fillStyle = '#000';
+        fftCtx.fillRect(0, 0, fftCanvas.width, fftCanvas.height);
+
+        const barWidth = fftCanvas.width / fftData.length;
+        for (let i = 0; i < fftData.length; i++) {
+          const barHeight = (fftData[i] / 255) * fftCanvas.height;
+          fftCtx.fillStyle = `hsl(${i * 360 / fftData.length}, 100%, 50%)`;
+          fftCtx.fillRect(i * barWidth, fftCanvas.height - barHeight, barWidth, barHeight);
+        }
+
+        // Oscilloscope
+        const oscData = new Float32Array(analyzer.frequencyBinCount);
+        analyzer.getFloatTimeDomainData(oscData);
+
+        oscCtx.fillStyle = '#000';
+        oscCtx.fillRect(0, 0, oscCanvas.width, oscCanvas.height);
+
+        oscCtx.beginPath();
+        oscCtx.moveTo(0, oscCanvas.height / 2);
+        for (let i = 0; i < oscData.length; i++) {
+          const x = (i / oscData.length) * oscCanvas.width;
+          const y = (oscData[i] * 0.5 + 0.5) * oscCanvas.height;
+          oscCtx.lineTo(x, y);
+        }
+        oscCtx.strokeStyle = '#03dac6';
+        oscCtx.lineWidth = 2;
+        oscCtx.stroke();
+
+        // Update resonance index
+        updateResonanceIndex();
+      }
+
+      draw();
+    }
+
+    // ===== RESONANCE INDEX =====
+    function updateResonanceIndex() {
+      if (!analyzer) return;
+
+      const fftData = new Float32Array(analyzer.frequencyBinCount);
+      analyzer.getFloatFrequencyData(fftData);
+
+      // Convert to linear scale
+      const linearFFT = fftData.map(dB => Math.pow(10, dB / 20));
+
+      // 1. Energy Ratio (for bandpass/comb methods)
+      const centerFreq = parseInt(document.getElementById('freq-slider').value);
+      const q = parseInt(document.getElementById('q-slider').value);
+      const bandwidth = centerFreq / q;
+      const binWidth = audioCtx.sampleRate / analyzer.fftSize;
+      const lowerBin = Math.floor((centerFreq - bandwidth / 2) / binWidth);
+      const upperBin = Math.floor((centerFreq + bandwidth / 2) / binWidth);
+
+      let resonantEnergy = 0;
+      let totalEnergy = 0;
+      for (let i = 0; i < linearFFT.length; i++) {
+        totalEnergy += linearFFT[i];
+        if (i >= lowerBin && i <= upperBin) {
+          resonantEnergy += linearFFT[i];
+        }
+      }
+      const energyRatio = (resonantEnergy / totalEnergy) * 100;
+
+      // 2. Spectral Flatness
+      let product = 1;
+      let sum = 0;
+      for (let i = 0; i < linearFFT.length; i++) {
+        sum += linearFFT[i];
+        product *= linearFFT[i];
+      }
+      const arithmeticMean = sum / linearFFT.length;
+      const geometricMean = Math.pow(product, 1 / linearFFT.length);
+      const spectralFlatness = geometricMean / arithmeticMean;
+      const spectralFlatnessPercent = (1 - spectralFlatness) * 100;
+
+      // 3. Q Contribution (normalized)
+      const qContribution = Math.min(100, (q / 100) * 100);
+
+      // Weighted average for resonance index
+      const resonanceIndex = (
+        energyRatio * 0.4 +
+        spectralFlatnessPercent * 0.3 +
+        qContribution * 0.3
+      );
+
+      // Update UI
+      document.getElementById('resonance-meter-fill').style.width = `${resonanceIndex}%`;
+      document.getElementById('resonance-score').textContent = `${Math.round(resonanceIndex)}%`;
+      document.getElementById('energy-ratio').textContent = `${Math.round(energyRatio)}%`;
+      document.getElementById('spectral-flatness').textContent = `${Math.round(spectralFlatnessPercent)}%`;
+      document.getElementById('q-contribution').textContent = `${Math.round(qContribution)}%`;
+    }
+
+    // ===== PRESETS =====
+    function savePreset() {
+      const preset = {
+        source: currentSource,
+        method: currentMethod,
+        q: document.getElementById('q-slider').value,
+        freq: document.getElementById('freq-slider').value,
+        feedback: document.getElementById('feedback-slider').value,
+        delay: document.getElementById('delay-slider').value,
+        wetDry: document.getElementById('wet-dry-slider').value
+      };
+      localStorage.setItem('resonanceLabPreset', JSON.stringify(preset));
+      alert('Preset saved!');
+    }
+
+    function loadPreset() {
+      const preset = JSON.parse(localStorage.getItem('resonanceLabPreset'));
+      if (preset) {
+        currentSource = preset.source;
+        currentMethod = preset.method;
+
+        document.querySelector(`.sound-btn[data-source="${preset.source}"]`).click();
+        document.querySelector(`.method-btn[data-method="${preset.method}"]`).click();
+
+        document.getElementById('q-slider').value = preset.q;
+        document.getElementById('q-value').textContent = preset.q;
+        document.getElementById('freq-slider').value = preset.freq;
+        document.getElementById('freq-value').textContent = preset.freq;
+        document.getElementById('feedback-slider').value = preset.feedback;
+        document.getElementById('feedback-value').textContent = preset.feedback;
+        document.getElementById('delay-slider').value = preset.delay;
+        document.getElementById('delay-value').textContent = preset.delay;
+        document.getElementById('wet-dry-slider').value = preset.wetDry;
+        document.getElementById('wet-dry-value').textContent = preset.wetDry;
+
+        alert('Preset loaded!');
+      } else {
+        alert('No preset found!');
+      }
+    }
+
+    function reset() {
+      currentSource = 'mic';
+      currentMethod = 'none';
+
+      document.querySelector('.sound-btn.active').classList.remove('active');
+      document.querySelector('.sound-btn[data-source="mic"]').classList.add('active');
+      document.querySelector('.method-btn.active').classList.remove('active');
+      document.querySelector('.method-btn[data-method="none"]').classList.add('active');
+
+      document.getElementById('q-slider').value = 10;
+      document.getElementById('q-value').textContent = 10;
+      document.getElementById('freq-slider').value = 440;
+      document.getElementById('freq-value').textContent = 440;
+      document.getElementById('feedback-slider').value = 50;
+      document.getElementById('feedback-value').textContent = 50;
+      document.getElementById('delay-slider').value = 10;
+      document.getElementById('delay-value').textContent = 10;
+      document.getElementById('wet-dry-slider').value = 50;
+      document.getElementById('wet-dry-value').textContent = 50;
+
+      setSoundSource(currentSource);
+      setResonanceMethod(currentMethod);
+    }
+
+    // ===== INITIALIZE =====
+    window.addEventListener('load', init);
+  </script>
+</body>
+</html>
