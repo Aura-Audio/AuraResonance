@@ -1,426 +1,777 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AuraResonance - Resonance Lab</title>
-  <link rel="icon" href="data:,"> <!-- Blank favicon to avoid 404 -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🌊 AuraResonance - Transform Chaos into Harmony</title>
   <style>
-    /* Base Styles */
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #121212;
-      color: #e0e0e0;
+    :root {
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-tertiary: #334155;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --accent: #6366f1;
+      --accent-hover: #4f46e5;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --border-radius: 12px;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --transition: all 0.2s ease;
+    }
+
+    * {
       margin: 0;
-      padding: 20px;
+      padding: 0;
+      box-sizing: border-box;
     }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      padding: 1rem;
+      min-height: 100vh;
+    }
+
     .container {
-      max-width: 1200px;
+      max-width: 1400px;
       margin: 0 auto;
-      background: #1e1e1e;
-      border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     }
-    h1, h2, h3 {
-      color: #03dac6;
-      margin-top: 0;
-    }
-    /* Sound Source Selector */
-    .sound-source, .resonance-method {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-    .sound-source button, .resonance-method button {
-      background: #333;
-      color: #fff;
-      border: 1px solid #444;
-      padding: 10px 15px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .sound-source button.active, .resonance-method button.active {
-      background: #03dac6;
-      color: #000;
-      border-color: #03dac6;
-    }
-    /* Parameters */
-    .parameters {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 15px;
-      margin-bottom: 20px;
-    }
-    .parameter {
-      background: #252525;
-      padding: 15px;
-      border-radius: 8px;
-    }
-    .parameter label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: bold;
-    }
-    .parameter input[type="range"] {
-      width: 100%;
-    }
-    .parameter .value {
+
+    header {
       text-align: center;
-      display: block;
-      margin-top: 5px;
+      padding: 1.5rem 1rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--bg-tertiary);
     }
-    /* Visualizers */
-    .visualizers {
+
+    header h1 {
+      font-size: 2.25rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6, #ec4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
       display: flex;
-      gap: 20px;
-      margin-bottom: 20px;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
     }
-    .visualizer {
-      flex: 1;
-      background: #000;
-      border-radius: 8px;
-      border: 1px solid #444;
-      position: relative;
-      height: 200px;
+
+    header p {
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin: 0 auto;
     }
-    .visualizer canvas {
+
+    .app-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (min-width: 1024px) {
+      .app-grid {
+        grid-template-columns: 320px 1fr 320px;
+      }
+    }
+
+    .panel {
+      background: var(--bg-secondary);
+      border-radius: var(--border-radius);
+      padding: 1.25rem;
+      box-shadow: var(--shadow);
+    }
+
+    .panel-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--bg-tertiary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .control-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .control-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      color: var(--text-secondary);
+    }
+
+    select, input[type="range"] {
       width: 100%;
-      height: 100%;
-    }
-    .visualizer-label {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      font-size: 12px;
-      color: #888;
-    }
-    /* Resonance Index */
-    .resonance-index {
-      background: #252525;
-      padding: 15px;
+      padding: 0.5rem;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--bg-primary);
       border-radius: 8px;
-      margin-bottom: 20px;
+      color: var(--text-primary);
+      font-size: 0.95rem;
+      transition: var(--transition);
     }
-    .resonance-index .meter {
-      height: 20px;
-      background: #333;
-      border-radius: 10px;
-      margin: 10px 0;
+
+    select:focus, input[type="range"]:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+
+    input[type="range"] {
+      height: 8px;
+      padding: 0;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.1);
+      background: var(--accent-hover);
+    }
+
+    .slider-value {
+      text-align: right;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-top: 0.25rem;
+      min-height: 1.25rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.625rem 1.25rem;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 500;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: var(--transition);
+      width: 100%;
+    }
+
+    .btn:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-secondary {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+    }
+
+    .btn-secondary:hover {
+      background: #475569;
+    }
+
+    .btn-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    .visualizer-container {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (min-width: 768px) {
+      .visualizer-container {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .visualizer {
+      background: var(--bg-primary);
+      border-radius: var(--border-radius);
+      height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       position: relative;
       overflow: hidden;
     }
-    .resonance-index .meter-fill {
+
+    canvas {
+      width: 100%;
       height: 100%;
-      background: linear-gradient(to right, #f44336, #ff9800, #4caf50);
-      border-radius: 10px;
-      transition: width 0.2s;
+      display: block;
     }
-    .resonance-index .score {
-      font-size: 24px;
-      font-weight: bold;
+
+    .resonance-meter {
       text-align: center;
+      padding: 1rem;
+      background: var(--bg-primary);
+      border-radius: var(--border-radius);
+      margin-bottom: 1.5rem;
     }
-    .resonance-index .details {
-      font-size: 14px;
-      color: #aaa;
-      text-align: center;
-      margin-top: 5px;
+
+    .resonance-value {
+      font-size: 3rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #22c55e, #3b82f6, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1;
+      margin: 0.5rem 0;
     }
-    /* Presets */
-    .presets {
+
+    .resonance-label {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .resonance-bar {
+      height: 8px;
+      background: var(--bg-tertiary);
+      border-radius: 4px;
+      margin-top: 0.75rem;
+      overflow: hidden;
+    }
+
+    .resonance-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #22c55e, #3b82f6, #8b5cf6);
+      border-radius: 4px;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .preset-list {
+      max-height: 200px;
+      overflow-y: auto;
+      margin-top: 0.75rem;
+    }
+
+    .preset-item {
+      padding: 0.5rem 0.75rem;
+      background: var(--bg-tertiary);
+      border-radius: 6px;
+      margin-bottom: 0.5rem;
       display: flex;
-      gap: 10px;
-      justify-content: center;
-    }
-    .presets button {
-      background: #333;
-      color: #fff;
-      border: 1px solid #444;
-      padding: 10px 15px;
-      border-radius: 8px;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.9rem;
       cursor: pointer;
+      transition: var(--transition);
     }
-    /* Responsive */
-    @media (max-width: 768px) {
-      .visualizers {
-        flex-direction: column;
-      }
+
+    .preset-item:hover {
+      background: #475569;
+    }
+
+    .preset-item.active {
+      background: var(--accent);
+      color: white;
+    }
+
+    .preset-actions {
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    .preset-btn {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      padding: 0.25rem;
+      border-radius: 4px;
+      transition: var(--transition);
+    }
+
+    .preset-btn:hover {
+      color: var(--text-primary);
+      background: rgba(255,255,255,0.1);
+    }
+
+    .status-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      background: var(--bg-secondary);
+      border-radius: var(--border-radius);
+      margin-top: 1rem;
+      font-size: 0.875rem;
+    }
+
+    .audio-status {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--danger);
+      transition: var(--transition);
+    }
+
+    .status-dot.active {
+      background: var(--success);
+      box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.3);
+    }
+
+    .method-description {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-top: 0.5rem;
+      padding: 0.5rem;
+      background: rgba(99, 102, 241, 0.1);
+      border-radius: 6px;
+      display: none;
+    }
+
+    .method-description.active {
+      display: block;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 1.5rem 1rem;
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      margin-top: 2rem;
+      border-top: 1px solid var(--bg-tertiary);
+    }
+
+    .footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-primary);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--bg-tertiary);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+
+    /* Animation for resonance pulse */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+    .resonance-value.high {
+      animation: pulse 1.5s infinite;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>🎛️ AuraResonance Lab</h1>
-    <p>Transform chaos into harmony: Apply resonance to noise, water, and more in real-time.</p>
+    <header>
+      <h1>🌊 AuraResonance</h1>
+      <p>Transform chaos into harmony: A real-time resonance lab for Web Audio</p>
+    </header>
 
-    <!-- Sound Source Selector -->
-    <h2>🔊 Sound Source</h2>
-    <div class="sound-source">
-      <button class="sound-btn active" data-source="mic">🎤 Live Mic</button>
-      <button class="sound-btn" data-source="white">White Noise</button>
-      <button class="sound-btn" data-source="pink">Pink Noise</button>
-      <button class="sound-btn" data-source="brown">Brown Noise</button>
-      <button class="sound-btn" data-source="tone">🎵 Tone (220Hz)</button>
-      <button class="sound-btn" data-source="water">💧 Water</button>
-      <button class="sound-btn" data-source="rain">🌧️ Rain</button>
-      <button class="sound-btn" data-source="fire">🔥 Fire</button>
+    <div class="app-grid">
+      <!-- Left Panel: Controls -->
+      <div class="panel">
+        <h2 class="panel-title">🔊 Sound Source</h2>
+        <div class="control-group">
+          <label class="control-label" for="sourceSelect">Select Source</label>
+          <select id="sourceSelect">
+            <option value="mic">🎤 Live Microphone</option>
+            <option value="white" selected>⬜ White Noise</option>
+            <option value="pink">🌸 Pink Noise</option>
+            <option value="brown">🟤 Brown Noise</option>
+            <option value="tone">🎵 Pure Tone (220Hz)</option>
+            <option value="water">💧 Procedural Water</option>
+            <option value="rain">🌧️ Rain Simulation</option>
+            <option value="fire">🔥 Fire Crackling</option>
+          </select>
+        </div>
+
+        <h2 class="panel-title" style="margin-top: 1.5rem">✨ Resonance Method</h2>
+        <div class="control-group">
+          <label class="control-label" for="methodSelect">Select Method</label>
+          <select id="methodSelect">
+            <option value="bandpass-high" selected>🔍 High-Q Bandpass</option>
+            <option value="bandpass-low">🌫️ Low-Q Bandpass</option>
+            <option value="lowpass">🔽 Lowpass Filter</option>
+            <option value="highpass">🔼 Highpass Filter</option>
+            <option value="peaking">⚖️ Peaking EQ</option>
+            <option value="comb">🪞 Comb Filter</option>
+            <option value="feedback">🔄 Sympathetic Feedback</option>
+            <option value="allpass">🌀 Allpass Filter</option>
+            <option value="lfo-mod">🌊 LFO-Modulated Filter</option>
+            <option value="convolution">🏛️ Convolution Reverb</option>
+            <option value="waveguide">🎸 Waveguide Synthesis</option>
+          </select>
+          <div id="methodDescription" class="method-description">
+            Isolates a narrow frequency band and amplifies it. Turns noise into pure tones.
+          </div>
+        </div>
+
+        <div id="paramControls">
+          <!-- Dynamic parameters will be injected here -->
+        </div>
+
+        <div class="btn-group">
+          <button id="startBtn" class="btn">▶️ Start Audio</button>
+          <button id="stopBtn" class="btn btn-secondary hidden">⏹️ Stop</button>
+        </div>
+
+        <h2 class="panel-title" style="margin-top: 1.5rem">💾 Presets</h2>
+        <div class="control-group">
+          <button id="savePresetBtn" class="btn btn-secondary">💾 Save Current</button>
+        </div>
+        <div class="preset-list" id="presetList">
+          <!-- Presets will be listed here -->
+        </div>
+      </div>
+
+      <!-- Center Panel: Visualizers -->
+      <div class="panel">
+        <h2 class="panel-title">📊 Real-Time Analysis</h2>
+        
+        <div class="resonance-meter">
+          <div class="resonance-label">Resonance Index</div>
+          <div class="resonance-value" id="resonanceValue">0%</div>
+          <div class="resonance-bar">
+            <div class="resonance-fill" id="resonanceFill"></div>
+          </div>
+        </div>
+
+        <div class="visualizer-container">
+          <div class="visualizer">
+            <canvas id="oscilloscope"></canvas>
+          </div>
+          <div class="visualizer">
+            <canvas id="spectrum"></canvas>
+          </div>
+        </div>
+
+        <div class="status-bar">
+          <div class="audio-status">
+            <div class="status-dot" id="audioStatus"></div>
+            <span id="statusText">Audio context suspended</span>
+          </div>
+          <div>
+            <span id="sampleRate">Sample Rate: --</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Panel: Info & Help -->
+      <div class="panel">
+        <h2 class="panel-title">ℹ️ About Resonance</h2>
+        <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1rem;">
+          Resonance selectively amplifies specific frequencies while attenuating others. 
+          Turn noise into music, water into chimes, or friction into singing bowls.
+        </p>
+        
+        <h3 style="font-size: 1rem; margin: 1rem 0 0.5rem; color: var(--text-primary);">How It Works</h3>
+        <ul style="font-size: 0.85rem; color: var(--text-secondary); padding-left: 1.25rem; line-height: 1.7;">
+          <li><strong>Energy Ratio (40%)</strong>: % of energy in resonant band</li>
+          <li><strong>Spectral Flatness (30%)</strong>: How "peak-y" the spectrum is</li>
+          <li><strong>Q Factor (30%)</strong>: Filter selectivity (higher = more resonant)</li>
+        </ul>
+        
+        <h3 style="font-size: 1rem; margin: 1.25rem 0 0.5rem; color: var(--text-primary);">Tips</h3>
+        <ul style="font-size: 0.85rem; color: var(--text-secondary); padding-left: 1.25rem; line-height: 1.7;">
+          <li>Try high Q values (50+) with noise sources</li>
+          <li>Combine feedback with filters for self-oscillation</li>
+          <li>Use LFO modulation for evolving textures</li>
+          <li>Adjust wet/dry mix to blend processed sound</li>
+        </ul>
+
+        <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--bg-tertiary);">
+          <p style="font-size: 0.8rem; color: var(--text-secondary);">
+            <strong>🔐 Privacy Note:</strong> Microphone access is only used locally in your browser. 
+            No audio is ever sent to servers.
+          </p>
+        </div>
+      </div>
     </div>
 
-    <!-- Resonance Method Selector -->
-    <h2>✨ Resonance Method</h2>
-    <div class="resonance-method">
-      <button class="method-btn active" data-method="none">🔇 None</button>
-      <button class="method-btn" data-method="bandpass">Bandpass Filter</button>
-      <button class="method-btn" data-method="comb">Comb Filter</button>
-      <button class="method-btn" data-method="feedback">Sympathetic Feedback</button>
-      <button class="method-btn" data-method="convolution">Convolution Reverb</button>
-      <button class="method-btn" data-method="lfo">LFO-Modulated Filter</button>
-      <button class="method-btn" data-method="waveguide">Waveguide</button>
-    </div>
-
-    <!-- Parameters -->
-    <h2>⚙️ Parameters</h2>
-    <div class="parameters">
-      <div class="parameter">
-        <label for="q-slider">Q Factor</label>
-        <input type="range" id="q-slider" min="1" max="100" value="10" class="slider">
-        <span class="value" id="q-value">10</span>
-      </div>
-      <div class="parameter">
-        <label for="freq-slider">Frequency (Hz)</label>
-        <input type="range" id="freq-slider" min="20" max="20000" value="440" class="slider">
-        <span class="value" id="freq-value">440</span>
-      </div>
-      <div class="parameter">
-        <label for="feedback-slider">Feedback (%)</label>
-        <input type="range" id="feedback-slider" min="0" max="100" value="50" class="slider">
-        <span class="value" id="feedback-value">50</span>
-      </div>
-      <div class="parameter">
-        <label for="delay-slider">Delay (ms)</label>
-        <input type="range" id="delay-slider" min="1" max="100" value="20" class="slider">
-        <span class="value" id="delay-value">20</span>
-      </div>
-      <div class="parameter">
-        <label for="wet-dry-slider">Wet/Dry Mix (%)</label>
-        <input type="range" id="wet-dry-slider" min="0" max="100" value="50" class="slider">
-        <span class="value" id="wet-dry-value">50</span>
-      </div>
-    </div>
-
-    <!-- Visualizers -->
-    <h2>📊 Visualizers</h2>
-    <div class="visualizers">
-      <div class="visualizer">
-        <div class="visualizer-label">FFT Spectrum</div>
-        <canvas id="fft-canvas"></canvas>
-      </div>
-      <div class="visualizer">
-        <div class="visualizer-label">Oscilloscope</div>
-        <canvas id="osc-canvas"></canvas>
-      </div>
-    </div>
-
-    <!-- Resonance Index -->
-    <h2>🎯 Resonance Index</h2>
-    <div class="resonance-index">
-      <div class="meter">
-        <div class="meter-fill" id="resonance-meter-fill" style="width: 0%;"></div>
-      </div>
-      <div class="score" id="resonance-score">0%</div>
-      <div class="details">
-        Energy Ratio: <span id="energy-ratio">0%</span> |
-        Spectral Flatness: <span id="spectral-flatness">0%</span> |
-        Q Contribution: <span id="q-contribution">0%</span>
-      </div>
-    </div>
-
-    <!-- Presets -->
-    <div class="presets">
-      <button id="save-preset">💾 Save Preset</button>
-      <button id="load-preset">📂 Load Preset</button>
-      <button id="reset">🔄 Reset</button>
-    </div>
+    <footer class="footer">
+      <p>🌊 AuraResonance • Built with Web Audio API • 
+        <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API" target="_blank">MDN Docs</a> • 
+        <a href="https://github.com/yourusername/AuraResonance" target="_blank">GitHub</a>
+      </p>
+      <p style="margin-top: 0.25rem; font-size: 0.8rem;">
+        MIT License • Transform chaos into harmony, one frequency at a time ✨
+      </p>
+    </footer>
   </div>
 
   <script>
-    // ===== GLOBAL VARIABLES =====
-    let audioCtx;
-    let masterGain;
-    let analyzer;
-    let soundSource;
-    let resonanceEffect;
-    let currentSource = 'mic';
-    let currentMethod = 'none';
-    let micStream;
+    /**
+     * 🌊 AuraResonance - Real-Time Resonance Lab
+     * Vanilla JavaScript implementation using Web Audio API
+     */
+    
+    // ===== GLOBAL STATE =====
+    const state = {
+      audioContext: null,
+      sourceNode: null,
+      analyser: null,
+      resonanceNode: null,
+      gainNode: null,
+      isPlaying: false,
+      currentSource: 'white',
+      currentMethod: 'bandpass-high',
+      params: {
+        frequency: 440,
+        q: 10,
+        feedback: 0.3,
+        delay: 0.05,
+        wet: 0.7,
+        lfoRate: 2,
+        lfoDepth: 100
+      },
+      animationFrame: null,
+      presets: []
+    };
 
-    // ===== INITIALIZATION =====
-    function init() {
-      // Create audio context
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    // ===== DOM ELEMENTS =====
+    const elements = {
+      sourceSelect: document.getElementById('sourceSelect'),
+      methodSelect: document.getElementById('methodSelect'),
+      paramControls: document.getElementById('paramControls'),
+      startBtn: document.getElementById('startBtn'),
+      stopBtn: document.getElementById('stopBtn'),
+      savePresetBtn: document.getElementById('savePresetBtn'),
+      presetList: document.getElementById('presetList'),
+      resonanceValue: document.getElementById('resonanceValue'),
+      resonanceFill: document.getElementById('resonanceFill'),
+      oscilloscope: document.getElementById('oscilloscope'),
+      spectrum: document.getElementById('spectrum'),
+      audioStatus: document.getElementById('audioStatus'),
+      statusText: document.getElementById('statusText'),
+      sampleRate: document.getElementById('sampleRate'),
+      methodDescription: document.getElementById('methodDescription')
+    };
 
-      // Master gain (to prevent clipping)
-      masterGain = audioCtx.createGain();
-      masterGain.gain.value = 0.7;
-      masterGain.connect(audioCtx.destination);
+    // Canvas contexts
+    const oscCtx = elements.oscilloscope.getContext('2d');
+    const specCtx = elements.spectrum.getContext('2d');
 
-      // Analyzer for visualizers and resonance index
-      analyzer = audioCtx.createAnalyser();
-      analyzer.fftSize = 2048;
-      masterGain.connect(analyzer);
+    // ===== METHOD DESCRIPTIONS =====
+    const methodDescriptions = {
+      'bandpass-high': 'Isolates a narrow frequency band, amplifying it while attenuating others. Turns noise into pure tones.',
+      'bandpass-low': 'Broadly boosts a frequency range for subtle warmth and ambient textures.',
+      'lowpass': 'Attenuates high frequencies, allowing lows to dominate. Great for warmth and muffling effects.',
+      'highpass': 'Attenuates low frequencies, allowing highs to dominate. Creates brightness and airy textures.',
+      'peaking': 'Boosts or cuts a specific frequency range. Perfect for tone shaping and enhancing harmonics.',
+      'comb': 'Creates peaks and notches via short delays + feedback. Metallic, robotic, or glassy textures.',
+      'feedback': 'Routes output back into input, creating self-oscillation. Sustained, singing tones.',
+      'allpass': 'Shifts phase without affecting amplitude. Creates phasing and subtle spatial resonance.',
+      'lfo-mod': 'Sweeps a filter\'s frequency with an LFO. Dynamic, evolving resonance effects.',
+      'convolution': 'Applies impulse response of a physical space/object. Realistic acoustic resonance.',
+      'waveguide': 'Models vibrations of strings/tubes using delay lines. String-like or tubular resonance.'
+    };
 
-      // Setup visualizers
-      setupVisualizers();
+    // ===== RESONANCE METHODS CONFIG =====
+    const methodConfigs = {
+      'bandpass-high': {
+        params: [
+          { id: 'frequency', label: 'Frequency (Hz)', min: 20, max: 20000, step: 1, default: 440, type: 'log' },
+          { id: 'q', label: 'Resonance (Q)', min: 0.1, max: 100, step: 0.1, default: 25 }
+        ]
+      },
+      'bandpass-low': {
+        params: [
+          { id: 'frequency', label: 'Frequency (Hz)', min: 20, max: 20000, step: 1, default: 440, type: 'log' },
+          { id: 'q', label: 'Width (Q)', min: 0.1, max: 10, step: 0.1, default: 1 }
+        ]
+      },
+      'lowpass': {
+        params: [
+          { id: 'frequency', label: 'Cutoff (Hz)', min: 20, max: 20000, step: 1, default: 1000, type: 'log' },
+          { id: 'q', label: 'Resonance', min: 0.1, max: 20, step: 0.1, default: 1 }
+        ]
+      },
+      'highpass': {
+        params: [
+          { id: 'frequency', label: 'Cutoff (Hz)', min: 20, max: 20000, step: 1, default: 500, type: 'log' },
+          { id: 'q', label: 'Resonance', min: 0.1, max: 20, step: 0.1, default: 1 }
+        ]
+      },
+      'peaking': {
+        params: [
+          { id: 'frequency', label: 'Center (Hz)', min: 20, max: 20000, step: 1, default: 1000, type: 'log' },
+          { id: 'q', label: 'Bandwidth (Q)', min: 0.1, max: 20, step: 0.1, default: 2 },
+          { id: 'gain', label: 'Gain (dB)', min: -40, max: 40, step: 1, default: 10 }
+        ]
+      },
+      'comb': {
+        params: [
+          { id: 'delay', label: 'Delay (ms)', min: 1, max: 100, step: 1, default: 20 },
+          { id: 'feedback', label: 'Feedback (%)', min: 0, max: 99, step: 1, default: 60 }
+        ]
+      },
+      'feedback': {
+        params: [
+          { id: 'frequency', label: 'Frequency (Hz)', min: 20, max: 20000, step: 1, default: 440, type: 'log' },
+          { id: 'q', label: 'Q Factor', min: 1, max: 100, step: 1, default: 30 },
+          { id: 'feedback', label: 'Feedback (%)', min: 0, max: 99, step: 1, default: 85 }
+        ]
+      },
+      'allpass': {
+        params: [
+          { id: 'frequency', label: 'Frequency (Hz)', min: 20, max: 20000, step: 1, default: 1000, type: 'log' },
+          { id: 'q', label: 'Q Factor', min: 0.1, max: 20, step: 0.1, default: 1 }
+        ]
+      },
+      'lfo-mod': {
+        params: [
+          { id: 'frequency', label: 'Center Freq (Hz)', min: 20, max: 20000, step: 1, default: 1000, type: 'log' },
+          { id: 'q', label: 'Filter Q', min: 1, max: 50, step: 1, default: 5 },
+          { id: 'lfoRate', label: 'LFO Rate (Hz)', min: 0.1, max: 20, step: 0.1, default: 2 },
+          { id: 'lfoDepth', label: 'LFO Depth (Hz)', min: 10, max: 5000, step: 10, default: 200 }
+        ]
+      },
+      'convolution': {
+        params: [
+          { id: 'wet', label: 'Wet/Dry Mix', min: 0, max: 100, step: 1, default: 70 }
+        ]
+      },
+      'waveguide': {
+        params: [
+          { id: 'delay', label: 'Delay (ms)', min: 1, max: 200, step: 1, default: 30 },
+          { id: 'feedback', label: 'Feedback (%)', min: 0, max: 99, step: 1, default: 80 },
+          { id: 'damping', label: 'Damping', min: 0.1, max: 1, step: 0.01, default: 0.95 }
+        ]
+      }
+    };
 
-      // Setup event listeners
-      setupEventListeners();
-
-      // Resume audio context on first interaction
-      document.addEventListener('click', () => {
-        if (audioCtx.state === 'suspended') {
-          audioCtx.resume().catch(err => console.error("Failed to resume audio context:", err));
+    // ===== AUDIO INITIALIZATION =====
+    async function initAudio() {
+      try {
+        // Create or resume audio context
+        if (!state.audioContext) {
+          state.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+          elements.sampleRate.textContent = `Sample Rate: ${state.audioContext.sampleRate} Hz`;
         }
-      }, { once: true });
-
-      // Start with default sound source
-      setSoundSource(currentSource);
+        
+        if (state.audioContext.state === 'suspended') {
+          await state.audioContext.resume();
+        }
+        
+        // Create analyser for visualization
+        if (!state.analyser) {
+          state.analyser = state.audioContext.createAnalyser();
+          state.analyser.fftSize = 2048;
+          state.analyser.smoothingTimeConstant = 0.8;
+        }
+        
+        // Create master gain
+        if (!state.gainNode) {
+          state.gainNode = state.audioContext.createGain();
+          state.gainNode.gain.value = 0.7;
+          state.gainNode.connect(state.audioContext.destination);
+        }
+        
+        // Update UI
+        elements.audioStatus.classList.add('active');
+        elements.statusText.textContent = 'Audio context active';
+        elements.startBtn.classList.add('hidden');
+        elements.stopBtn.classList.remove('hidden');
+        
+        state.isPlaying = true;
+        setupSource();
+        startVisualization();
+        
+      } catch (err) {
+        console.error('Audio init error:', err);
+        elements.statusText.textContent = `Error: ${err.message}`;
+        elements.audioStatus.classList.remove('active');
+      }
     }
 
-    // ===== SETUP EVENT LISTENERS =====
-    function setupEventListeners() {
-      // Sound source buttons
-      document.querySelectorAll('.sound-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          document.querySelectorAll('.sound-btn').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          currentSource = btn.dataset.source;
-          setSoundSource(currentSource);
-        });
-      });
-
-      // Resonance method buttons
-      document.querySelectorAll('.method-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          document.querySelectorAll('.method-btn').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          currentMethod = btn.dataset.method;
-          setResonanceMethod(currentMethod);
-        });
-      });
-
-      // Parameter sliders
-      document.querySelectorAll('.slider').forEach(slider => {
-        slider.addEventListener('input', () => {
-          const value = slider.value;
-          const id = slider.id.replace('-slider', '-value');
-          document.getElementById(id).textContent = value;
-          updateResonanceEffect();
-          updateResonanceIndex();
-        });
-      });
-
-      // Preset buttons
-      document.getElementById('save-preset').addEventListener('click', savePreset);
-      document.getElementById('load-preset').addEventListener('click', loadPreset);
-      document.getElementById('reset').addEventListener('click', reset);
+    function stopAudio() {
+      if (state.sourceNode && state.sourceNode.stop) {
+        try {
+          state.sourceNode.stop();
+        } catch (e) {
+          // Node may already be stopped
+        }
+      }
+      
+      if (state.animationFrame) {
+        cancelAnimationFrame(state.animationFrame);
+        state.animationFrame = null;
+      }
+      
+      // Clear canvases
+      oscCtx.clearRect(0, 0, elements.oscilloscope.width, elements.oscilloscope.height);
+      specCtx.clearRect(0, 0, elements.spectrum.width, elements.spectrum.height);
+      
+      state.isPlaying = false;
+      elements.audioStatus.classList.remove('active');
+      elements.statusText.textContent = 'Audio stopped';
+      elements.startBtn.classList.remove('hidden');
+      elements.stopBtn.classList.add('hidden');
+      elements.resonanceValue.textContent = '0%';
+      elements.resonanceFill.style.width = '0%';
     }
 
     // ===== SOUND SOURCES =====
-    function setSoundSource(source) {
-      // Disconnect previous sound source
-      if (soundSource) {
-        soundSource.disconnect();
-        if (currentSource === 'mic' && micStream) {
-          micStream.getTracks().forEach(track => track.stop());
+    function createNoiseBuffer(type, duration = 2) {
+      const sampleRate = state.audioContext.sampleRate;
+      const length = sampleRate * duration;
+      const buffer = state.audioContext.createBuffer(1, length, sampleRate);
+      const data = buffer.getChannelData(0);
+      
+      if (type === 'white') {
+        for (let i = 0; i < length; i++) {
+          data[i] = Math.random() * 2 - 1;
         }
-      }
-
-      // Create new sound source
-      switch (source) {
-        case 'mic':
-          if (!micStream) {
-            navigator.mediaDevices.getUserMedia({ audio: true })
-              .then(stream => {
-                micStream = stream;
-                soundSource = audioCtx.createMediaStreamSource(stream);
-                connectSoundSource();
-              })
-              .catch(err => {
-                console.error('Error accessing mic:', err);
-                alert('Could not access microphone. Please allow mic access.');
-              });
-          } else {
-            soundSource = audioCtx.createMediaStreamSource(micStream);
-            connectSoundSource();
-          }
-          break;
-        case 'white':
-          soundSource = createWhiteNoise();
-          connectSoundSource();
-          break;
-        case 'pink':
-          soundSource = createPinkNoise();
-          connectSoundSource();
-          break;
-        case 'brown':
-          soundSource = createBrownNoise();
-          connectSoundSource();
-          break;
-        case 'tone':
-          soundSource = createTone(220);
-          connectSoundSource();
-          break;
-        case 'water':
-          soundSource = createWaterSound();
-          connectSoundSource();
-          break;
-        case 'rain':
-          soundSource = createRainSound();
-          connectSoundSource();
-          break;
-        case 'fire':
-          soundSource = createFireSound();
-          connectSoundSource();
-          break;
-      }
-    }
-
-    function connectSoundSource() {
-      if (soundSource) {
-        soundSource.disconnect();
-        if (resonanceEffect) {
-          soundSource.connect(resonanceEffect.input);
-          resonanceEffect.output.connect(masterGain);
-        } else {
-          soundSource.connect(masterGain);
-        }
-      }
-    }
-
-    // Sound source generators
-    function createWhiteNoise() {
-      const bufferSize = audioCtx.sampleRate * 2;
-      const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-      const output = noiseBuffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) {
-        output[i] = Math.random() * 2 - 1;
-      }
-      const node = audioCtx.createBufferSource();
-      node.buffer = noiseBuffer;
-      node.loop = true;
-      node.start();
-      return node;
-    }
-
-    function createPinkNoise() {
-      const node = audioCtx.createScriptProcessor(4096, 1, 1);
-      let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
-      node.onaudioprocess = function(e) {
-        const output = e.outputBuffer.getChannelData(0);
-        for (let i = 0; i < output.length; i++) {
+      } else if (type === 'pink') {
+        // Simple pink noise approximation
+        let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+        for (let i = 0; i < length; i++) {
           const white = Math.random() * 2 - 1;
           b0 = 0.99886 * b0 + white * 0.0555179;
           b1 = 0.99332 * b1 + white * 0.0750759;
@@ -428,642 +779,888 @@
           b3 = 0.86650 * b3 + white * 0.3104856;
           b4 = 0.55000 * b4 + white * 0.5329522;
           b5 = -0.7616 * b5 - white * 0.0168980;
-          b6 = white * 0.0330707;
-          output[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362;
+          data[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362;
+          data[i] *= 0.11; // Normalize
+          b6 = white * 0.115926;
         }
-      };
-      return node;
-    }
-
-    function createBrownNoise() {
-      const node = audioCtx.createScriptProcessor(4096, 1, 1);
-      let lastOut = 0;
-      node.onaudioprocess = function(e) {
-        const output = e.outputBuffer.getChannelData(0);
-        for (let i = 0; i < output.length; i++) {
+      } else if (type === 'brown') {
+        let lastOut = 0;
+        for (let i = 0; i < length; i++) {
           const white = Math.random() * 2 - 1;
-          output[i] = (lastOut + (0.02 * white)) / 1.02;
-          lastOut = output[i];
-        }
-      };
-      return node;
-    }
-
-    function createTone(freq) {
-      const osc = audioCtx.createOscillator();
-      osc.type = 'sine';
-      osc.frequency.value = freq;
-      osc.start();
-      return osc;
-    }
-
-    function createWaterSound() {
-      const bufferSize = audioCtx.sampleRate * 2;
-      const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-      const output = noiseBuffer.getChannelData(0);
-      let lastOut = 0;
-      for (let i = 0; i < bufferSize; i++) {
-        const white = Math.random() * 2 - 1;
-        output[i] = (lastOut + (0.02 * white)) / 1.02;
-        lastOut = output[i];
-        output[i] *= 3.5; // Boost volume
-      }
-      const noiseNode = audioCtx.createBufferSource();
-      noiseNode.buffer = noiseBuffer;
-      noiseNode.loop = true;
-
-      const lowpass = audioCtx.createBiquadFilter();
-      lowpass.type = 'lowpass';
-      lowpass.frequency.value = 600;
-
-      noiseNode.connect(lowpass);
-      noiseNode.start();
-
-      // Add bubbles
-      const bubbleInterval = setInterval(() => {
-        if (!audioCtx) return;
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.connect(gain);
-        gain.connect(lowpass);
-
-        const now = audioCtx.currentTime;
-        const baseFreq = 300 + Math.random() * 500;
-        const duration = 0.05 + Math.random() * 0.08;
-
-        osc.frequency.setValueAtTime(baseFreq, now);
-        osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.5, now + duration);
-
-        gain.gain.setValueAtTime(0, now);
-        gain.gain.linearRampToValueAtTime(0.3 + Math.random() * 0.4, now + 0.01);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
-
-        osc.start(now);
-        osc.stop(now + duration);
-      }, 100 + Math.random() * 200);
-
-      // Return an object with input/output for consistency
-      return {
-        input: lowpass,
-        output: lowpass,
-        update: function() {}, // No parameters to update
-        cleanup: function() {
-          clearInterval(bubbleInterval);
-        }
-      };
-    }
-
-    function createRainSound() {
-      const bufferSize = audioCtx.sampleRate * 2;
-      const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-      const output = noiseBuffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) {
-        output[i] = Math.random() * 2 - 1;
-      }
-      const noiseNode = audioCtx.createBufferSource();
-      noiseNode.buffer = noiseBuffer;
-      noiseNode.loop = true;
-
-      const highpass = audioCtx.createBiquadFilter();
-      highpass.type = 'highpass';
-      highpass.frequency.value = 2000;
-
-      noiseNode.connect(highpass);
-      noiseNode.start();
-
-      // Add raindrops
-      const raindropInterval = setInterval(() => {
-        if (!audioCtx) return;
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.connect(gain);
-        gain.connect(highpass);
-
-        const now = audioCtx.currentTime;
-        const baseFreq = 800 + Math.random() * 1000;
-        const duration = 0.01 + Math.random() * 0.03;
-
-        osc.frequency.setValueAtTime(baseFreq, now);
-        osc.frequency.exponentialRampToValueAtTime(baseFreq * 0.5, now + duration);
-
-        gain.gain.setValueAtTime(0, now);
-        gain.gain.linearRampToValueAtTime(0.5 + Math.random() * 0.5, now + 0.005);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
-
-        osc.start(now);
-        osc.stop(now + duration);
-      }, 50 + Math.random() * 150);
-
-      return {
-        input: highpass,
-        output: highpass,
-        update: function() {},
-        cleanup: function() {
-          clearInterval(raindropInterval);
-        }
-      };
-    }
-
-    function createFireSound() {
-      const bufferSize = audioCtx.sampleRate * 2;
-      const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-      const output = noiseBuffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) {
-        output[i] = Math.random() * 2 - 1;
-      }
-      const noiseNode = audioCtx.createBufferSource();
-      noiseNode.buffer = noiseBuffer;
-      noiseNode.loop = true;
-
-      const bandpass = audioCtx.createBiquadFilter();
-      bandpass.type = 'bandpass';
-      bandpass.frequency.value = 200;
-      bandpass.Q.value = 2;
-
-      noiseNode.connect(bandpass);
-      noiseNode.start();
-
-      // Modulate frequency with LFO
-      const lfo = audioCtx.createOscillator();
-      lfo.frequency.value = 0.5 + Math.random() * 0.5;
-      lfo.start();
-      lfo.connect(bandpass.frequency);
-
-      return {
-        input: bandpass,
-        output: bandpass,
-        update: function() {},
-        cleanup: function() {
-          lfo.disconnect();
-        }
-      };
-    }
-
-    // ===== RESONANCE METHODS =====
-    function setResonanceMethod(method) {
-      // Disconnect previous resonance effect
-      if (resonanceEffect) {
-        try {
-          if (resonanceEffect.input) resonanceEffect.input.disconnect();
-          if (resonanceEffect.output) resonanceEffect.output.disconnect();
-          if (resonanceEffect.cleanup) resonanceEffect.cleanup();
-        } catch (e) {
-          console.error("Error disconnecting resonance effect:", e);
+          data[i] = (lastOut + (0.02 * white)) / 1.02;
+          lastOut = data[i];
+          data[i] *= 3.5; // Amplify
         }
       }
+      
+      return buffer;
+    }
 
-      // Create new resonance effect
-      switch (method) {
-        case 'none':
-          resonanceEffect = null;
-          if (soundSource) {
-            soundSource.disconnect();
-            soundSource.connect(masterGain);
+    function createProceduralSource(type) {
+      if (type === 'tone') {
+        const osc = state.audioContext.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.value = 220;
+        return osc;
+      }
+      
+      if (['white', 'pink', 'brown'].includes(type)) {
+        const buffer = createNoiseBuffer(type);
+        const source = state.audioContext.createBufferSource();
+        source.buffer = buffer;
+        source.loop = true;
+        return source;
+      }
+      
+      if (type === 'water') {
+        // Brown noise base + random "bubble" sine waves
+        const baseNoise = createNoiseBuffer('brown', 1);
+        const noiseSource = state.audioContext.createBufferSource();
+        noiseSource.buffer = baseNoise;
+        noiseSource.loop = true;
+        
+        // Create bubble generator (simplified)
+        const bubbleGain = state.audioContext.createGain();
+        bubbleGain.gain.value = 0.3;
+        
+        // Schedule random bubbles
+        const scheduleBubbles = () => {
+          if (!state.isPlaying) return;
+          
+          const bubbleOsc = state.audioContext.createOscillator();
+          const bubbleGainNode = state.audioContext.createGain();
+          
+          bubbleOsc.type = 'sine';
+          bubbleOsc.frequency.setValueAtTime(300 + Math.random() * 700, state.audioContext.currentTime);
+          bubbleOsc.frequency.exponentialRampToValueAtTime(100, state.audioContext.currentTime + 0.1);
+          
+          bubbleGainNode.gain.setValueAtTime(0, state.audioContext.currentTime);
+          bubbleGainNode.gain.linearRampToValueAtTime(0.5, state.audioContext.currentTime + 0.02);
+          bubbleGainNode.gain.exponentialRampToValueAtTime(0.01, state.audioContext.currentTime + 0.15);
+          
+          bubbleOsc.connect(bubbleGainNode);
+          bubbleGainNode.connect(bubbleGain);
+          
+          bubbleOsc.start();
+          bubbleOsc.stop(state.audioContext.currentTime + 0.2);
+          
+          // Schedule next bubble
+          setTimeout(scheduleBubbles, 200 + Math.random() * 400);
+        };
+        
+        setTimeout(scheduleBubbles, 100);
+        return noiseSource;
+      }
+      
+      if (type === 'rain') {
+        const noiseBuffer = createNoiseBuffer('white', 1);
+        const noiseSource = state.audioContext.createBufferSource();
+        noiseSource.buffer = noiseBuffer;
+        noiseSource.loop = true;
+        
+        // Highpass filter for rain character
+        const hpFilter = state.audioContext.createBiquadFilter();
+        hpFilter.type = 'highpass';
+        hpFilter.frequency.value = 1500;
+        
+        noiseSource.connect(hpFilter);
+        noiseSource.filterNode = hpFilter; // Store for later connection
+        
+        // Schedule raindrops
+        const scheduleRaindrops = () => {
+          if (!state.isPlaying) return;
+          
+          const dropOsc = state.audioContext.createOscillator();
+          const dropGain = state.audioContext.createGain();
+          
+          dropOsc.type = 'sine';
+          dropOsc.frequency.setValueAtTime(2000 + Math.random() * 3000, state.audioContext.currentTime);
+          dropOsc.frequency.exponentialRampToValueAtTime(500, state.audioContext.currentTime + 0.05);
+          
+          dropGain.gain.setValueAtTime(0, state.audioContext.currentTime);
+          dropGain.gain.linearRampToValueAtTime(0.8, state.audioContext.currentTime + 0.01);
+          dropGain.gain.exponentialRampToValueAtTime(0.01, state.audioContext.currentTime + 0.08);
+          
+          dropOsc.connect(dropGain);
+          dropGain.connect(hpFilter);
+          
+          dropOsc.start();
+          dropOsc.stop(state.audioContext.currentTime + 0.1);
+          
+          setTimeout(scheduleRaindrops, 50 + Math.random() * 150);
+        };
+        
+        setTimeout(scheduleRaindrops, 100);
+        return noiseSource;
+      }
+      
+      if (type === 'fire') {
+        const noiseBuffer = createNoiseBuffer('white', 1);
+        const noiseSource = state.audioContext.createBufferSource();
+        noiseSource.buffer = noiseBuffer;
+        noiseSource.loop = true;
+        
+        // Bandpass for fire character
+        const bpFilter = state.audioContext.createBiquadFilter();
+        bpFilter.type = 'bandpass';
+        bpFilter.frequency.value = 1200;
+        bpFilter.Q.value = 1.5;
+        
+        // LFO for crackling modulation
+        const lfo = state.audioContext.createOscillator();
+        const lfoGain = state.audioContext.createGain();
+        lfo.type = 'square';
+        lfo.frequency.value = 8 + Math.random() * 4;
+        lfoGain.gain.value = 200;
+        
+        lfo.connect(lfoGain);
+        lfoGain.connect(bpFilter.frequency);
+        lfo.start();
+        
+        noiseSource.connect(bpFilter);
+        noiseSource.lfo = lfo; // Store for cleanup
+        noiseSource.filterNode = bpFilter;
+        
+        return noiseSource;
+      }
+      
+      // Fallback to white noise
+      const buffer = createNoiseBuffer('white');
+      const source = state.audioContext.createBufferSource();
+      source.buffer = buffer;
+      source.loop = true;
+      return source;
+    }
+
+    // ===== RESONANCE PROCESSING =====
+    function createResonanceNode(method) {
+      const ctx = state.audioContext;
+      
+      switch(method) {
+        case 'bandpass-high':
+        case 'bandpass-low':
+        case 'lowpass':
+        case 'highpass':
+        case 'peaking':
+        case 'allpass': {
+          const filter = ctx.createBiquadFilter();
+          filter.type = method.replace('-high', '').replace('-low', '');
+          if (method === 'bandpass-high') filter.Q.value = state.params.q;
+          else if (method === 'bandpass-low') filter.Q.value = Math.max(0.1, state.params.q);
+          else filter.Q.value = state.params.q;
+          filter.frequency.value = state.params.frequency;
+          if (method === 'peaking') filter.gain.value = state.params.gain || 0;
+          return filter;
+        }
+        
+        case 'comb': {
+          const delay = ctx.createDelay(0.1);
+          delay.delayTime.value = (state.params.delay || 20) / 1000;
+          
+          const feedbackGain = ctx.createGain();
+          feedbackGain.gain.value = (state.params.feedback || 60) / 100;
+          
+          // Create feedback loop: input -> delay -> feedback -> delay input
+          // We'll connect this properly in setupSource
+          delay.feedbackGain = feedbackGain;
+          return delay;
+        }
+        
+        case 'feedback': {
+          const filter = ctx.createBiquadFilter();
+          filter.type = 'bandpass';
+          filter.frequency.value = state.params.frequency;
+          filter.Q.value = state.params.q;
+          
+          const feedbackGain = ctx.createGain();
+          feedbackGain.gain.value = (state.params.feedback || 85) / 100;
+          
+          filter.feedbackGain = feedbackGain;
+          return filter;
+        }
+        
+        case 'lfo-mod': {
+          const filter = ctx.createBiquadFilter();
+          filter.type = 'bandpass';
+          filter.frequency.value = state.params.frequency;
+          filter.Q.value = state.params.q;
+          
+          // Create LFO for modulation
+          const lfo = ctx.createOscillator();
+          const lfoGain = ctx.createGain();
+          lfo.type = 'sine';
+          lfo.frequency.value = state.params.lfoRate || 2;
+          lfoGain.gain.value = state.params.lfoDepth || 200;
+          
+          lfo.connect(lfoGain);
+          lfoGain.connect(filter.frequency);
+          lfo.start();
+          
+          filter.lfo = lfo;
+          return filter;
+        }
+        
+        case 'convolution': {
+          // Create a simple impulse response for demo
+          const impulse = ctx.createBuffer(2, ctx.sampleRate * 0.3, ctx.sampleRate);
+          for (let channel = 0; channel < 2; channel++) {
+            const data = impulse.getChannelData(channel);
+            // Create decaying noise impulse
+            for (let i = 0; i < data.length; i++) {
+              data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.1));
+            }
           }
-          break;
-        case 'bandpass':
-          resonanceEffect = createBandpassFilter();
-          break;
-        case 'comb':
-          resonanceEffect = createCombFilter();
-          break;
-        case 'feedback':
-          resonanceEffect = createFeedbackLoop();
-          break;
-        case 'convolution':
-          resonanceEffect = createConvolutionReverb();
-          break;
-        case 'lfo':
-          resonanceEffect = createLFOFilter();
-          break;
-        case 'waveguide':
-          resonanceEffect = createWaveguide();
-          break;
-      }
-
-      // Reconnect sound source
-      if (soundSource) {
-        soundSource.disconnect();
-        if (resonanceEffect) {
-          soundSource.connect(resonanceEffect.input);
-          resonanceEffect.output.connect(masterGain);
-        } else {
-          soundSource.connect(masterGain);
+          
+          const convolver = ctx.createConvolver();
+          convolver.buffer = impulse;
+          
+          const wetGain = ctx.createGain();
+          const dryGain = ctx.createGain();
+          wetGain.gain.value = (state.params.wet || 70) / 100;
+          dryGain.gain.value = 1 - wetGain.gain.value;
+          
+          convolver.wetGain = wetGain;
+          convolver.dryGain = dryGain;
+          return convolver;
+        }
+        
+        case 'waveguide': {
+          const delay = ctx.createDelay(0.2);
+          delay.delayTime.value = (state.params.delay || 30) / 1000;
+          
+          const feedbackGain = ctx.createGain();
+          feedbackGain.gain.value = (state.params.feedback || 80) / 100;
+          
+          const dampingFilter = ctx.createBiquadFilter();
+          dampingFilter.type = 'lowpass';
+          dampingFilter.frequency.value = 5000 * (state.params.damping || 0.95);
+          
+          delay.feedbackGain = feedbackGain;
+          delay.dampingFilter = dampingFilter;
+          return delay;
+        }
+        
+        default: {
+          // Default bandpass
+          const filter = ctx.createBiquadFilter();
+          filter.type = 'bandpass';
+          filter.frequency.value = state.params.frequency;
+          filter.Q.value = state.params.q;
+          return filter;
         }
       }
     }
 
-    function updateResonanceEffect() {
-      if (!resonanceEffect || typeof resonanceEffect.update !== 'function') {
+    function setupSource() {
+      // Clean up existing nodes
+      if (state.sourceNode) {
+        if (state.sourceNode.lfo && state.sourceNode.lfo.stop) {
+          state.sourceNode.lfo.stop();
+        }
+        if (state.sourceNode.filterNode && state.sourceNode.filterNode.disconnect) {
+          // Disconnect filter if it was created
+        }
+      }
+      
+      if (state.resonanceNode) {
+        if (state.resonanceNode.lfo && state.resonanceNode.lfo.stop) {
+          state.resonanceNode.lfo.stop();
+        }
+        state.resonanceNode.disconnect();
+      }
+      
+      // Create new source
+      state.sourceNode = createProceduralSource(state.currentSource);
+      
+      // Create resonance processor
+      state.resonanceNode = createResonanceNode(state.currentMethod);
+      
+      // Connect audio graph: source -> resonance -> analyser -> gain -> destination
+      state.sourceNode.connect(state.resonanceNode);
+      
+      // Handle special routing for feedback-based methods
+      if (state.currentMethod === 'comb' || state.currentMethod === 'feedback' || state.currentMethod === 'waveguide') {
+        if (state.resonanceNode.feedbackGain) {
+          state.resonanceNode.connect(state.resonanceNode.feedbackGain);
+          state.resonanceNode.feedbackGain.connect(state.resonanceNode);
+          state.resonanceNode.connect(state.analyser);
+        } else {
+          state.resonanceNode.connect(state.analyser);
+        }
+      } else if (state.currentMethod === 'convolution') {
+        // Convolver needs dry/wet mixing
+        const wetGain = state.resonanceNode.wetGain;
+        const dryGain = state.resonanceNode.dryGain;
+        
+        state.sourceNode.connect(dryGain);
+        state.resonanceNode.connect(wetGain);
+        
+        const merger = state.audioContext.createGain();
+        dryGain.connect(merger);
+        wetGain.connect(merger);
+        merger.connect(state.analyser);
+      } else {
+        state.resonanceNode.connect(state.analyser);
+      }
+      
+      state.analyser.connect(state.gainNode);
+      
+      // Start source
+      if (state.sourceNode.start) {
+        state.sourceNode.start();
+      }
+    }
+
+    // ===== PARAMETER UI GENERATION =====
+    function generateParamControls(method) {
+      const config = methodConfigs[method];
+      if (!config || !config.params) {
+        elements.paramControls.innerHTML = '';
         return;
       }
-
-      const params = {
-        freq: parseInt(document.getElementById('freq-slider').value),
-        q: parseInt(document.getElementById('q-slider').value),
-        feedback: parseInt(document.getElementById('feedback-slider').value) / 100,
-        delay: parseInt(document.getElementById('delay-slider').value) / 1000,
-        wetDry: parseInt(document.getElementById('wet-dry-slider').value) / 100
-      };
-
-      resonanceEffect.update(params);
-    }
-
-    // Standardized effect creators (input, output, update)
-    function createBandpassFilter() {
-      const filter = audioCtx.createBiquadFilter();
-      filter.type = 'bandpass';
-      filter.frequency.value = 440;
-      filter.Q.value = 10;
-
-      const dryGain = audioCtx.createGain();
-      dryGain.gain.value = 0.5;
-      const wetGain = audioCtx.createGain();
-      wetGain.gain.value = 0.5;
-
-      const merger = audioCtx.createChannelMerger(2);
-      dryGain.connect(merger, 0, 0);
-      wetGain.connect(merger, 0, 1);
-
-      return {
-        input: filter,
-        output: merger,
-        update: function(params) {
-          if (params.freq !== undefined) this.input.frequency.value = params.freq;
-          if (params.q !== undefined) this.input.Q.value = params.q;
-          if (params.wetDry !== undefined) {
-            wetGain.gain.value = params.wetDry;
-            dryGain.gain.value = 1 - params.wetDry;
-          }
-        }
-      };
-    }
-
-    function createCombFilter() {
-      const delay = audioCtx.createDelay(1);
-      delay.delayTime.value = 0.02;
-
-      const feedback = audioCtx.createGain();
-      feedback.gain.value = 0.5;
-
-      const wetGain = audioCtx.createGain();
-      wetGain.gain.value = 0.5;
-      const dryGain = audioCtx.createGain();
-      dryGain.gain.value = 0.5;
-
-      const merger = audioCtx.createChannelMerger(2);
-      delay.connect(feedback);
-      feedback.connect(delay);
-      delay.connect(wetGain);
-      dryGain.connect(merger, 0, 0);
-      wetGain.connect(merger, 0, 1);
-
-      return {
-        input: delay,
-        output: merger,
-        update: function(params) {
-          if (params.delay !== undefined) this.input.delayTime.value = params.delay;
-          if (params.feedback !== undefined) feedback.gain.value = params.feedback;
-          if (params.wetDry !== undefined) {
-            wetGain.gain.value = params.wetDry;
-            dryGain.gain.value = 1 - params.wetDry;
-          }
-        }
-      };
-    }
-
-    function createFeedbackLoop() {
-      const filter = audioCtx.createBiquadFilter();
-      filter.type = 'bandpass';
-      filter.frequency.value = 440;
-      filter.Q.value = 10;
-
-      const feedback = audioCtx.createGain();
-      feedback.gain.value = 0.5;
-
-      const wetGain = audioCtx.createGain();
-      wetGain.gain.value = 0.5;
-      const dryGain = audioCtx.createGain();
-      dryGain.gain.value = 0.5;
-
-      const merger = audioCtx.createChannelMerger(2);
-      filter.connect(feedback);
-      feedback.connect(filter);
-      filter.connect(wetGain);
-      dryGain.connect(merger, 0, 0);
-      wetGain.connect(merger, 0, 1);
-
-      return {
-        input: filter,
-        output: merger,
-        update: function(params) {
-          if (params.freq !== undefined) this.input.frequency.value = params.freq;
-          if (params.q !== undefined) this.input.Q.value = params.q;
-          if (params.feedback !== undefined) feedback.gain.value = params.feedback;
-          if (params.wetDry !== undefined) {
-            wetGain.gain.value = params.wetDry;
-            dryGain.gain.value = 1 - params.wetDry;
-          }
-        }
-      };
-    }
-
-    async function createConvolutionReverb() {
-      // Default IR (silence - replace with actual IR in production)
-      const sampleRate = audioCtx.sampleRate;
-      const duration = 2;
-      const length = sampleRate * duration;
-      const impulseBuffer = audioCtx.createBuffer(2, length, sampleRate);
-      for (let channel = 0; channel < 2; channel++) {
-        const data = impulseBuffer.getChannelData(channel);
-        for (let i = 0; i < length; i++) {
-          data[i] = Math.random() * 0.1; // Simple noise IR (replace with real IR)
-        }
+      
+      let html = '';
+      
+      config.params.forEach(param => {
+        const value = state.params[param.id] !== undefined ? state.params[param.id] : param.default;
+        const displayValue = param.type === 'log' ? formatFrequency(value) : 
+                            param.id === 'wet' || param.id === 'feedback' || param.id === 'damping' ? 
+                              (param.id === 'damping' ? value.toFixed(2) : `${Math.round(value)}%`) : 
+                              value.toFixed(param.step < 1 ? 2 : 0);
+        
+        html += `
+          <div class="control-group">
+            <label class="control-label" for="${param.id}Slider">${param.label}</label>
+            <input type="range" id="${param.id}Slider" min="${param.min}" max="${param.max}" 
+                   step="${param.step}" value="${value}">
+            <div class="slider-value" id="${param.id}Value">${displayValue}</div>
+          </div>
+        `;
+      });
+      
+      // Add wet/dry mix for most methods
+      if (!['convolution'].includes(method)) {
+        html += `
+          <div class="control-group">
+            <label class="control-label" for="wetSlider">Wet/Dry Mix</label>
+            <input type="range" id="wetSlider" min="0" max="100" step="1" value="${state.params.wet || 70}">
+            <div class="slider-value" id="wetValue">${state.params.wet || 70}%</div>
+          </div>
+        `;
       }
-
-      const convolver = audioCtx.createConvolver();
-      convolver.buffer = impulseBuffer;
-
-      const wetGain = audioCtx.createGain();
-      wetGain.gain.value = 0.5;
-      const dryGain = audioCtx.createGain();
-      dryGain.gain.value = 0.5;
-
-      const merger = audioCtx.createChannelMerger(2);
-      convolver.connect(wetGain);
-      dryGain.connect(merger, 0, 0);
-      wetGain.connect(merger, 0, 1);
-
-      return {
-        input: convolver,
-        output: merger,
-        update: function(params) {
-          if (params.wetDry !== undefined) {
-            wetGain.gain.value = params.wetDry;
-            dryGain.gain.value = 1 - params.wetDry;
-          }
+      
+      elements.paramControls.innerHTML = html;
+      
+      // Attach event listeners
+      config.params.forEach(param => {
+        const slider = document.getElementById(`${param.id}Slider`);
+        const valueDisplay = document.getElementById(`${param.id}Value`);
+        
+        if (slider) {
+          slider.addEventListener('input', (e) => {
+            const val = parseFloat(e.target.value);
+            state.params[param.id] = val;
+            
+            // Update display
+            const displayVal = param.type === 'log' ? formatFrequency(val) : 
+                              param.id === 'wet' || param.id === 'feedback' || param.id === 'damping' ? 
+                                (param.id === 'damping' ? val.toFixed(2) : `${Math.round(val)}%`) : 
+                                val.toFixed(param.step < 1 ? 2 : 0);
+            valueDisplay.textContent = displayVal;
+            
+            // Apply to audio node if playing
+            if (state.isPlaying && state.resonanceNode) {
+              applyParamToNode(param.id, val);
+            }
+          });
         }
-      };
+      });
+      
+      // Wet/dry slider listener
+      const wetSlider = document.getElementById('wetSlider');
+      if (wetSlider) {
+        wetSlider.addEventListener('input', (e) => {
+          const val = parseInt(e.target.value);
+          state.params.wet = val;
+          document.getElementById('wetValue').textContent = `${val}%`;
+          
+          if (state.isPlaying && state.resonanceNode) {
+            if (state.resonanceNode.wetGain) {
+              state.resonanceNode.wetGain.gain.value = val / 100;
+              state.resonanceNode.dryGain.gain.value = 1 - val / 100;
+            } else if (state.gainNode) {
+              // Simple gain adjustment for non-convolution methods
+              state.gainNode.gain.value = 0.5 + (val / 200);
+            }
+          }
+        });
+      }
     }
 
-    function createLFOFilter() {
-      const filter = audioCtx.createBiquadFilter();
-      filter.type = 'bandpass';
-      filter.frequency.value = 440;
-      filter.Q.value = 10;
-
-      const lfo = audioCtx.createOscillator();
-      lfo.type = 'sine';
-      lfo.frequency.value = 1;
-      lfo.start();
-
-      const lfoGain = audioCtx.createGain();
-      lfoGain.gain.value = 100; // Depth of modulation
-
-      lfo.connect(lfoGain);
-      lfoGain.connect(filter.frequency);
-
-      const wetGain = audioCtx.createGain();
-      wetGain.gain.value = 0.5;
-      const dryGain = audioCtx.createGain();
-      dryGain.gain.value = 0.5;
-
-      const merger = audioCtx.createChannelMerger(2);
-      filter.connect(wetGain);
-      dryGain.connect(merger, 0, 0);
-      wetGain.connect(merger, 0, 1);
-
-      return {
-        input: filter,
-        output: merger,
-        lfo: lfo,
-        update: function(params) {
-          if (params.freq !== undefined) this.input.frequency.value = params.freq;
-          if (params.q !== undefined) this.input.Q.value = params.q;
-          if (params.feedback !== undefined) this.lfo.frequency.value = params.feedback * 2;
-          if (params.wetDry !== undefined) {
-            wetGain.gain.value = params.wetDry;
-            dryGain.gain.value = 1 - params.wetDry;
+    function applyParamToNode(paramId, value) {
+      if (!state.resonanceNode) return;
+      
+      switch(state.currentMethod) {
+        case 'bandpass-high':
+        case 'bandpass-low':
+        case 'lowpass':
+        case 'highpass':
+        case 'peaking':
+        case 'allpass':
+          if (paramId === 'frequency') state.resonanceNode.frequency.value = value;
+          if (paramId === 'q') state.resonanceNode.Q.value = value;
+          if (paramId === 'gain' && state.resonanceNode.gain) state.resonanceNode.gain.value = value;
+          break;
+          
+        case 'comb':
+        case 'waveguide':
+          if (paramId === 'delay' && state.resonanceNode.delayTime) {
+            state.resonanceNode.delayTime.value = value / 1000;
           }
-        }
-      };
+          if (paramId === 'feedback' && state.resonanceNode.feedbackGain) {
+            state.resonanceNode.feedbackGain.gain.value = value / 100;
+          }
+          break;
+          
+        case 'feedback':
+          if (paramId === 'frequency') state.resonanceNode.frequency.value = value;
+          if (paramId === 'q') state.resonanceNode.Q.value = value;
+          if (paramId === 'feedback' && state.resonanceNode.feedbackGain) {
+            state.resonanceNode.feedbackGain.gain.value = value / 100;
+          }
+          break;
+          
+        case 'lfo-mod':
+          if (paramId === 'frequency') state.resonanceNode.frequency.value = value;
+          if (paramId === 'q') state.resonanceNode.Q.value = value;
+          if (paramId === 'lfoRate' && state.resonanceNode.lfo) {
+            state.resonanceNode.lfo.frequency.value = value;
+          }
+          if (paramId === 'lfoDepth' && state.resonanceNode.lfo) {
+            // Note: This would need reconnection in a full implementation
+          }
+          break;
+          
+        case 'convolution':
+          if (paramId === 'wet' && state.resonanceNode.wetGain) {
+            state.resonanceNode.wetGain.gain.value = value / 100;
+            state.resonanceNode.dryGain.gain.value = 1 - value / 100;
+          }
+          break;
+      }
     }
 
-    function createWaveguide() {
-      const delay = audioCtx.createDelay(1);
-      delay.delayTime.value = 0.1;
-
-      const filter = audioCtx.createBiquadFilter();
-      filter.type = 'lowpass';
-      filter.frequency.value = 1000;
-      filter.Q.value = 10;
-
-      const feedback = audioCtx.createGain();
-      feedback.gain.value = 0.5;
-
-      delay.connect(filter);
-      filter.connect(feedback);
-      feedback.connect(delay);
-
-      const wetGain = audioCtx.createGain();
-      wetGain.gain.value = 0.5;
-      const dryGain = audioCtx.createGain();
-      dryGain.gain.value = 0.5;
-
-      const merger = audioCtx.createChannelMerger(2);
-      delay.connect(wetGain);
-      dryGain.connect(merger, 0, 0);
-      wetGain.connect(merger, 0, 1);
-
-      return {
-        input: delay,
-        output: merger,
-        update: function(params) {
-          if (params.freq !== undefined) filter.frequency.value = params.freq;
-          if (params.q !== undefined) filter.Q.value = params.q;
-          if (params.feedback !== undefined) feedback.gain.value = params.feedback;
-          if (params.wetDry !== undefined) {
-            wetGain.gain.value = params.wetDry;
-            dryGain.gain.value = 1 - params.wetDry;
-          }
-        }
-      };
+    function formatFrequency(hz) {
+      if (hz >= 1000) return `${(hz/1000).toFixed(1)} kHz`;
+      return `${Math.round(hz)} Hz`;
     }
 
-    // ===== VISUALIZERS =====
-    function setupVisualizers() {
-      const fftCanvas = document.getElementById('fft-canvas');
-      const fftCtx = fftCanvas.getContext('2d');
-      const oscCanvas = document.getElementById('osc-canvas');
-      const oscCtx = oscCanvas.getContext('2d');
-
+    // ===== VISUALIZATION =====
+    function startVisualization() {
+      const bufferLength = state.analyser.frequencyBinCount;
+      const timeData = new Uint8Array(bufferLength);
+      const freqData = new Uint8Array(bufferLength);
+      
+      // Setup canvas sizes
+      function resizeCanvases() {
+        elements.oscilloscope.width = elements.oscilloscope.offsetWidth;
+        elements.oscilloscope.height = elements.oscilloscope.offsetHeight;
+        elements.spectrum.width = elements.spectrum.offsetWidth;
+        elements.spectrum.height = elements.spectrum.offsetHeight;
+      }
+      
+      window.addEventListener('resize', resizeCanvases);
+      resizeCanvases();
+      
       function draw() {
-        requestAnimationFrame(draw);
-
-        // FFT Spectrum
-        const fftData = new Uint8Array(analyzer.frequencyBinCount);
-        analyzer.getByteFrequencyData(fftData);
-
-        fftCtx.fillStyle = '#000';
-        fftCtx.fillRect(0, 0, fftCanvas.width, fftCanvas.height);
-
-        const barWidth = fftCanvas.width / fftData.length;
-        for (let i = 0; i < fftData.length; i++) {
-          const barHeight = (fftData[i] / 255) * fftCanvas.height;
-          fftCtx.fillStyle = `hsl(${i * 360 / fftData.length}, 100%, 50%)`;
-          fftCtx.fillRect(i * barWidth, fftCanvas.height - barHeight, barWidth, barHeight);
-        }
-
-        // Oscilloscope
-        const oscData = new Float32Array(analyzer.frequencyBinCount);
-        analyzer.getFloatTimeDomainData(oscData);
-
-        oscCtx.fillStyle = '#000';
-        oscCtx.fillRect(0, 0, oscCanvas.width, oscCanvas.height);
-
-        oscCtx.beginPath();
-        oscCtx.moveTo(0, oscCanvas.height / 2);
-        for (let i = 0; i < oscData.length; i++) {
-          const x = (i / oscData.length) * oscCanvas.width;
-          const y = (oscData[i] * 0.5 + 0.5) * oscCanvas.height;
-          oscCtx.lineTo(x, y);
-        }
-        oscCtx.strokeStyle = '#03dac6';
-        oscCtx.lineWidth = 2;
-        oscCtx.stroke();
-
-        // Update resonance index
-        updateResonanceIndex();
+        if (!state.isPlaying) return;
+        
+        state.animationFrame = requestAnimationFrame(draw);
+        
+        // Get data
+        state.analyser.getByteTimeDomainData(timeData);
+        state.analyser.getByteFrequencyData(freqData);
+        
+        // Draw oscilloscope
+        drawOscilloscope(timeData);
+        
+        // Draw spectrum
+        drawSpectrum(freqData);
+        
+        // Calculate and update resonance index
+        updateResonanceIndex(freqData);
       }
-
+      
       draw();
     }
 
-    // ===== RESONANCE INDEX =====
-    function updateResonanceIndex() {
-      if (!analyzer) return;
+    function drawOscilloscope(data) {
+      const canvas = elements.oscilloscope;
+      const ctx = oscCtx;
+      const width = canvas.width;
+      const height = canvas.height;
+      
+      ctx.clearRect(0, 0, width, height);
+      
+      // Background gradient
+      const bgGradient = ctx.createLinearGradient(0, 0, 0, height);
+      bgGradient.addColorStop(0, 'rgba(30, 41, 59, 0.8)');
+      bgGradient.addColorStop(1, 'rgba(15, 23, 42, 0.9)');
+      ctx.fillStyle = bgGradient;
+      ctx.fillRect(0, 0, width, height);
+      
+      // Grid lines
+      ctx.strokeStyle = 'rgba(99, 102, 241, 0.1)';
+      ctx.lineWidth = 1;
+      for (let i = 0; i < 5; i++) {
+        ctx.beginPath();
+        ctx.moveTo(0, height * i/4);
+        ctx.lineTo(width, height * i/4);
+        ctx.stroke();
+      }
+      
+      // Waveform
+      ctx.beginPath();
+      ctx.moveTo(0, height/2);
+      
+      const sliceWidth = width / data.length;
+      let x = 0;
+      
+      for (let i = 0; i < data.length; i++) {
+        const v = data[i] / 128.0;
+        const y = (v * height/2) + height/2;
+        
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+        
+        x += sliceWidth;
+      }
+      
+      // Gradient stroke
+      const gradient = ctx.createLinearGradient(0, 0, width, 0);
+      gradient.addColorStop(0, '#6366f1');
+      gradient.addColorStop(0.5, '#8b5cf6');
+      gradient.addColorStop(1, '#ec4899');
+      
+      ctx.strokeStyle = gradient;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
 
-      const fftData = new Float32Array(analyzer.frequencyBinCount);
-      analyzer.getFloatFrequencyData(fftData);
+    function drawSpectrum(data) {
+      const canvas = elements.spectrum;
+      const ctx = specCtx;
+      const width = canvas.width;
+      const height = canvas.height;
+      
+      ctx.clearRect(0, 0, width, height);
+      
+      // Background
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.95)';
+      ctx.fillRect(0, 0, width, height);
+      
+      // Draw bars
+      const barWidth = (width / data.length) * 2.5;
+      let x = 0;
+      
+      for (let i = 0; i < data.length; i++) {
+        const barHeight = (data[i] / 255) * height;
+        
+        // Color based on frequency and amplitude
+        const hue = (i / data.length) * 60 + 220; // Blue to purple range
+        const saturation = 80 + (data[i] / 255) * 20;
+        const lightness = 50 + (data[i] / 255) * 20;
+        
+        ctx.fillStyle = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+        ctx.fillRect(x, height - barHeight, barWidth, barHeight);
+        
+        x += barWidth + 1;
+        if (x > width) break;
+      }
+      
+      // Overlay gradient
+      const overlay = ctx.createLinearGradient(0, 0, 0, height);
+      overlay.addColorStop(0, 'transparent');
+      overlay.addColorStop(1, 'rgba(15, 23, 42, 0.7)');
+      ctx.fillStyle = overlay;
+      ctx.fillRect(0, 0, width, height);
+    }
 
-      // Convert to linear scale
-      const linearFFT = fftData.map(dB => Math.pow(10, dB / 20));
-
-      // 1. Energy Ratio
-      const centerFreq = parseInt(document.getElementById('freq-slider').value);
-      const q = parseInt(document.getElementById('q-slider').value);
-      const bandwidth = centerFreq / q;
-      const binWidth = audioCtx.sampleRate / analyzer.fftSize;
-      const lowerBin = Math.max(0, Math.floor((centerFreq - bandwidth / 2) / binWidth));
-      const upperBin = Math.min(linearFFT.length - 1, Math.floor((centerFreq + bandwidth / 2) / binWidth));
-
+    function updateResonanceIndex(freqData) {
+      // Simplified resonance calculation based on the README formula
+      // Energy Ratio (40%): % of energy in resonant band
+      const centerFreq = state.params.frequency || 440;
+      const bandwidth = (state.params.q || 10) > 1 ? centerFreq / (state.params.q || 10) : centerFreq * 0.5;
+      const lowBin = Math.floor((centerFreq - bandwidth/2) / (state.audioContext.sampleRate / 2) * freqData.length);
+      const highBin = Math.min(Math.floor((centerFreq + bandwidth/2) / (state.audioContext.sampleRate / 2) * freqData.length), freqData.length - 1);
+      
       let resonantEnergy = 0;
       let totalEnergy = 0;
-      for (let i = 0; i < linearFFT.length; i++) {
-        totalEnergy += linearFFT[i];
-        if (i >= lowerBin && i <= upperBin) {
-          resonantEnergy += linearFFT[i];
+      
+      for (let i = 0; i < freqData.length; i++) {
+        const energy = freqData[i];
+        totalEnergy += energy;
+        if (i >= lowBin && i <= highBin) {
+          resonantEnergy += energy;
         }
       }
+      
       const energyRatio = totalEnergy > 0 ? (resonantEnergy / totalEnergy) * 100 : 0;
-
-      // 2. Spectral Flatness
-      let product = 1;
-      let sum = 0;
-      for (let i = 0; i < linearFFT.length; i++) {
-        sum += linearFFT[i];
-        product *= linearFFT[i];
+      
+      // Spectral Flatness (30%): Simplified - lower is more resonant
+      // Using ratio of geometric to arithmetic mean approximation
+      let sum = 0, product = 1, count = 0;
+      for (let i = 0; i < freqData.length; i++) {
+        if (freqData[i] > 0) {
+          sum += freqData[i];
+          product *= freqData[i];
+          count++;
+        }
       }
-      const arithmeticMean = sum / linearFFT.length;
-      const geometricMean = Math.pow(product, 1 / linearFFT.length);
-      const spectralFlatness = geometricMean / arithmeticMean;
-      const spectralFlatnessPercent = (1 - spectralFlatness) * 100;
-
-      // 3. Q Contribution
-      const qContribution = Math.min(100, (q / 100) * 100);
-
-      // Weighted average for resonance index
-      const resonanceIndex = (
-        energyRatio * 0.4 +
-        spectralFlatnessPercent * 0.3 +
-        qContribution * 0.3
-      );
-
+      
+      const arithmeticMean = count > 0 ? sum / count : 1;
+      const geometricMean = count > 0 ? Math.pow(product, 1/count) : 1;
+      const spectralFlatness = arithmeticMean > 0 ? (1 - geometricMean / arithmeticMean) * 100 : 0;
+      
+      // Q Factor Contribution (30%): Normalize Q (higher = more resonant)
+      const qContribution = Math.min(100, ((state.params.q || 10) / 100) * 100);
+      
+      // Calculate weighted average
+      const resonanceIndex = (energyRatio * 0.4) + (spectralFlatness * 0.3) + (qContribution * 0.3);
+      const clampedIndex = Math.max(0, Math.min(100, Math.round(resonanceIndex)));
+      
       // Update UI
-      document.getElementById('resonance-meter-fill').style.width = `${resonanceIndex}%`;
-      document.getElementById('resonance-score').textContent = `${Math.round(resonanceIndex)}%`;
-      document.getElementById('energy-ratio').textContent = `${Math.round(energyRatio)}%`;
-      document.getElementById('spectral-flatness').textContent = `${Math.round(spectralFlatnessPercent)}%`;
-      document.getElementById('q-contribution').textContent = `${Math.round(qContribution)}%`;
-    }
-
-    // ===== PRESETS =====
-    function savePreset() {
-      const preset = {
-        source: currentSource,
-        method: currentMethod,
-        q: document.getElementById('q-slider').value,
-        freq: document.getElementById('freq-slider').value,
-        feedback: document.getElementById('feedback-slider').value,
-        delay: document.getElementById('delay-slider').value,
-        wetDry: document.getElementById('wet-dry-slider').value
-      };
-      localStorage.setItem('auraResonancePreset', JSON.stringify(preset));
-      alert('Preset saved!');
-    }
-
-    function loadPreset() {
-      const preset = JSON.parse(localStorage.getItem('auraResonancePreset'));
-      if (preset) {
-        currentSource = preset.source;
-        currentMethod = preset.method;
-
-        document.querySelector(`.sound-btn[data-source="${preset.source}"]`).click();
-        document.querySelector(`.method-btn[data-method="${preset.method}"]`).click();
-
-        document.getElementById('q-slider').value = preset.q;
-        document.getElementById('q-value').textContent = preset.q;
-        document.getElementById('freq-slider').value = preset.freq;
-        document.getElementById('freq-value').textContent = preset.freq;
-        document.getElementById('feedback-slider').value = preset.feedback;
-        document.getElementById('feedback-value').textContent = preset.feedback;
-        document.getElementById('delay-slider').value = preset.delay;
-        document.getElementById('delay-value').textContent = preset.delay;
-        document.getElementById('wet-dry-slider').value = preset.wetDry;
-        document.getElementById('wet-dry-value').textContent = preset.wetDry;
-
-        alert('Preset loaded!');
+      elements.resonanceValue.textContent = `${clampedIndex}%`;
+      elements.resonanceFill.style.width = `${clampedIndex}%`;
+      
+      // Add pulse animation for high resonance
+      if (clampedIndex > 75) {
+        elements.resonanceValue.classList.add('high');
       } else {
-        alert('No preset found!');
+        elements.resonanceValue.classList.remove('high');
       }
     }
 
-    function reset() {
-      currentSource = 'mic';
-      currentMethod = 'none';
-
-      document.querySelector('.sound-btn.active').classList.remove('active');
-      document.querySelector('.sound-btn[data-source="mic"]').classList.add('active');
-      document.querySelector('.method-btn.active').classList.remove('active');
-      document.querySelector('.method-btn[data-method="none"]').classList.add('active');
-
-      document.getElementById('q-slider').value = 10;
-      document.getElementById('q-value').textContent = 10;
-      document.getElementById('freq-slider').value = 440;
-      document.getElementById('freq-value').textContent = 440;
-      document.getElementById('feedback-slider').value = 50;
-      document.getElementById('feedback-value').textContent = 50;
-      document.getElementById('delay-slider').value = 20;
-      document.getElementById('delay-value').textContent = 20;
-      document.getElementById('wet-dry-slider').value = 50;
-      document.getElementById('wet-dry-value').textContent = 50;
-
-      setSoundSource(currentSource);
-      setResonanceMethod(currentMethod);
+    // ===== PRESET MANAGEMENT =====
+    function loadPresets() {
+      const saved = localStorage.getItem('auraResonance_presets');
+      state.presets = saved ? JSON.parse(saved) : [
+        { name: '🌊 Water Bell', source: 'water', method: 'bandpass-high', params: { frequency: 523, q: 45, wet: 85 } },
+        { name: '🔥 Fire Drone', source: 'fire', method: 'lfo-mod', params: { frequency: 220, q: 8, lfoRate: 1.5, wet: 90 } },
+        { name: '🌧️ Rain Chimes', source: 'rain', method: 'waveguide', params: { delay: 45, feedback: 85, damping: 0.97, wet: 75 } }
+      ];
+      renderPresetList();
     }
 
-    // ===== INITIALIZE =====
-    window.addEventListener('load', init);
+    function renderPresetList() {
+      elements.presetList.innerHTML = '';
+      
+      if (state.presets.length === 0) {
+        elements.presetList.innerHTML = '<div style="color: var(--text-secondary); font-size: 0.85rem; padding: 0.5rem;">No presets saved</div>';
+        return;
+      }
+      
+      state.presets.forEach((preset, index) => {
+        const item = document.createElement('div');
+        item.className = `preset-item ${preset.name === 'Current' ? 'active' : ''}`;
+        item.innerHTML = `
+          <span>${preset.name}</span>
+          <div class="preset-actions">
+            <button class="preset-btn" data-action="load" data-index="${index}">⏵</button>
+            <button class="preset-btn" data-action="delete" data-index="${index}">🗑️</button>
+          </div>
+        `;
+        elements.presetList.appendChild(item);
+      });
+      
+      // Add event listeners
+      document.querySelectorAll('.preset-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const action = btn.dataset.action;
+          const index = parseInt(btn.dataset.index);
+          
+          if (action === 'load') {
+            loadPreset(index);
+          } else if (action === 'delete') {
+            deletePreset(index);
+          }
+        });
+      });
+      
+      // Click on preset item to load
+      document.querySelectorAll('.preset-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const index = Array.from(elements.presetList.children).indexOf(item);
+          if (index >= 0) loadPreset(index);
+        });
+      });
+    }
+
+    function savePreset() {
+      const name = prompt('Preset name:', `Preset ${state.presets.length + 1}`);
+      if (!name) return;
+      
+      const preset = {
+        name: name,
+        source: state.currentSource,
+        method: state.currentMethod,
+        params: { ...state.params }
+      };
+      
+      state.presets.push(preset);
+      localStorage.setItem('auraResonance_presets', JSON.stringify(state.presets));
+      renderPresetList();
+    }
+
+    function loadPreset(index) {
+      const preset = state.presets[index];
+      if (!preset) return;
+      
+      // Update state
+      state.currentSource = preset.source;
+      state.currentMethod = preset.method;
+      state.params = { ...preset.params };
+      
+      // Update UI
+      elements.sourceSelect.value = preset.source;
+      elements.methodSelect.value = preset.method;
+      
+      // Update method description
+      elements.methodDescription.textContent = methodDescriptions[preset.method] || '';
+      elements.methodDescription.classList.add('active');
+      
+      // Regenerate controls
+      generateParamControls(preset.method);
+      
+      // Apply values to sliders
+      Object.keys(state.params).forEach(key => {
+        const slider = document.getElementById(`${key}Slider`);
+        const display = document.getElementById(`${key}Value`);
+        if (slider && state.params[key] !== undefined) {
+          slider.value = state.params[key];
+          if (display) {
+            const param = methodConfigs[preset.method]?.params?.find(p => p.id === key);
+            if (param) {
+              const val = param.type === 'log' ? formatFrequency(state.params[key]) : 
+                         key === 'wet' || key === 'feedback' || key === 'damping' ? 
+                           (key === 'damping' ? state.params[key].toFixed(2) : `${Math.round(state.params[key])}%`) : 
+                           state.params[key].toFixed(param.step < 1 ? 2 : 0);
+              display.textContent = val;
+            }
+          }
+        }
+      });
+      
+      // If playing, re-setup audio
+      if (state.isPlaying) {
+        setupSource();
+      }
+      
+      // Highlight active preset
+      document.querySelectorAll('.preset-item').forEach((item, i) => {
+        item.classList.toggle('active', i === index);
+      });
+    }
+
+    function deletePreset(index) {
+      if (confirm(`Delete preset "${state.presets[index].name}"?`)) {
+        state.presets.splice(index, 1);
+        localStorage.setItem('auraResonance_presets', JSON.stringify(state.presets));
+        renderPresetList();
+      }
+    }
+
+    // ===== EVENT LISTENERS =====
+    function setupEventListeners() {
+      // Start/Stop buttons
+      elements.startBtn.addEventListener('click', initAudio);
+      elements.stopBtn.addEventListener('click', stopAudio);
+      
+      // Source selection
+      elements.sourceSelect.addEventListener('change', (e) => {
+        state.currentSource = e.target.value;
+        if (state.isPlaying) {
+          setupSource();
+        }
+      });
+      
+      // Method selection
+      elements.methodSelect.addEventListener('change', (e) => {
+        state.currentMethod = e.target.value;
+        
+        // Update description
+        elements.methodDescription.textContent = methodDescriptions[e.target.value] || '';
+        elements.methodDescription.classList.add('active');
+        
+        // Regenerate parameter controls
+        generateParamControls(e.target.value);
+        
+        // Re-setup audio if playing
+        if (state.isPlaying) {
+          setupSource();
+        }
+      });
+      
+      // Save preset
+      elements.savePresetBtn.addEventListener('click', savePreset);
+      
+      // Keyboard shortcuts
+      document.addEventListener('keydown', (e) => {
+        if (e.key === ' ') {
+          e.preventDefault();
+          if (state.isPlaying) stopAudio();
+          else initAudio();
+        }
+        if (e.key === 'Escape') {
+          stopAudio();
+        }
+      });
+      
+      // Handle page visibility for audio suspension
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden && state.audioContext && state.audioContext.state === 'running') {
+          // Optional: pause audio when tab is hidden
+          // state.audioContext.suspend();
+        }
+      });
+    }
+
+    // ===== INITIALIZATION =====
+    function init() {
+      // Load presets
+      loadPresets();
+      
+      // Generate initial param controls
+      generateParamControls(state.currentMethod);
+      
+      // Set initial method description
+      elements.methodDescription.textContent = methodDescriptions[state.currentMethod];
+      elements.methodDescription.classList.add('active');
+      
+      // Setup event listeners
+      setupEventListeners();
+      
+      // Initialize canvas sizes
+      setTimeout(() => {
+        if (elements.oscilloscope.offsetWidth > 0) {
+          elements.oscilloscope.width = elements.oscilloscope.offsetWidth;
+          elements.oscilloscope.height = elements.oscilloscope.offsetHeight;
+          elements.spectrum.width = elements.spectrum.offsetWidth;
+          elements.spectrum.height = elements.spectrum.offsetHeight;
+        }
+      }, 100);
+      
+      // Check for Web Audio API support
+      if (!window.AudioContext && !window.webkitAudioContext) {
+        elements.statusText.textContent = '❌ Web Audio API not supported';
+        elements.audioStatus.classList.remove('active');
+        elements.startBtn.disabled = true;
+      }
+    }
+
+    // Start when DOM is ready
+    document.addEventListener('DOMContentLoaded', init);
   </script>
 </body>
 </html>
